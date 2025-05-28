@@ -1,0 +1,37 @@
+type User {
+    id: ID!
+    full_name: String!
+    name: String!
+}
+
+input UserInput {
+    id: ID!
+    full_name: String!
+    name: String!
+    password: String!
+}
+
+type Mutation {
+    createUser(input: UserInput!): User!
+    updateUser(input: UserInput!): User
+    deleteUser(id: ID!): User
+}
+
+type Query {
+    user(id: ID!): User    
+    users(limit: Int): [User!]
+}
+
+# type Subscription {
+#   newTask: Task
+# }
+# 
+# input TaskInput {
+#     name: String!
+#     deadline: String!    
+# }
+# 
+# input TransferTaskInput {
+#     task_id: ID!
+#     user_id: ID!    
+# }

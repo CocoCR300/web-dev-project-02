@@ -1,0 +1,36 @@
+{
+	"name": "project-02",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"dev": "tsx src/index"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.9.0",
+	"dependencies": {
+		"@apollo/server": "^4.12.1",
+		"@as-integrations/express5": "^1.0.0",
+		"@graphql-tools/schema": "^10.0.23",
+		"@types/cors": "^2.8.18",
+		"@types/express": "^5.0.2",
+		"@types/ws": "^8.18.1",
+		"cors": "^2.8.5",
+		"express": "^5.1.0",
+		"express-jwt": "^8.5.1",
+		"graphql": "^16.11.0",
+		"graphql-subscriptions": "^3.0.0",
+		"graphql-ws": "^6.0.5",
+		"jsonwebtoken": "^9.0.2",
+		"resolve": "^1.22.10",
+		"ws": "^8.18.2"
+	},
+	"devDependencies": {
+		"@types/node": "^22.15.23",
+		"tsx": "^4.19.4",
+		"typescript": "^5.8.3"
+	}
+}
