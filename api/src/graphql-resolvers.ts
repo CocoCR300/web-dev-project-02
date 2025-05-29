@@ -2,6 +2,7 @@ import { GraphQLError } from "graphql";
 import { createUser, deleteUser, updateUser, userById, users } from "./service/user";
 import { User } from "./model/user";
 import { PubSub } from "graphql-subscriptions";
+import { ApolloServerContext, IdResult } from "./typedef";
 
 const publishSubscribe = new PubSub();
 
@@ -11,14 +12,21 @@ function subscribeNewTask(_, args, { user }) {
 
 export const resolvers = {
 	Query: {
+		me: async (_, args, context: ApolloServerContext): Promise<User> => {
+			const { token } = context;
+			if (!token) {
+				throw new GraphQLError("Not authenticated", { extensions: { code: "UNATHENTICATED" } });
+			}
+
+			const id = token.sub;
+			const user = await userById(id);
+
+			return user;
+		},
 		user: async (_, { id }): Promise<User> => {
-			const user = await userById(id)
-			if (!user) {
-				throw new GraphQLError("User does not exist", {
-					extensions: {
-						code: "NOT_FOUND"
-					}
-				})
+			const user = await userById(id);
+			if (user == null) {
+				throw new GraphQLError("User does not exist", { extensions: { code: "NOT_FOUND" } });
 			}
 
 			return user
@@ -44,35 +52,47 @@ export const resolvers = {
 
 			return newUser;
 		},
-		deleteUser: (_, { id }): Promise<User | null> => {
-			const deletedUser = deleteUser(id);
-			if (!deletedUser) {
+		deleteSelf: async (_, args, context: ApolloServerContext): Promise<IdResult> => {
+			const { token } = context;
+			if (!token) {
+				throw new GraphQLError("Not authenticated", { extensions: { code: "UNAUTHENTICATED" } });
+			}
+
+			const id = token.sub;
+			const deleted = await deleteUser(id);
+			if (!deleted) {
 				throw new GraphQLError("User not found", { extensions: { code: "NOT_FOUND" } });
 			}
 
-			return deletedUser;
+			return { id };
 		},
-		updateUser: async (_, { input }): Promise<User> => {
-			const { id, name, full_name, password } = input;
+		updateSelf: async (_, { input }, context: ApolloServerContext): Promise<User> => {
+			const { token } = context;
+			if (!token) {
+				throw new GraphQLError("Not authenticated", { extensions: { code: "UNAUTHENTICATED" } });
+			}
+
+			const id = token.sub;
+			const { name, full_name, password } = input;
 			const updatedUser = await updateUser(id, name, full_name, password);
-			if (!updatedUser) {
+			if (updatedUser == null) {
 				throw new GraphQLError("User not found", { extensions: { code: "NOT_FOUND" } });
 			}
 
 			return updatedUser;
 		},
-		//createTask: async (_root, { input: { name, deadline } }, { auth }) => {
-		//	if (!auth) {
+		//createTask: async (_root, { input: { name, deadline } }, { token }) => {
+		//	if (!token) {
 		//		throw new GraphQLError("Usuario no autorizado", { extensions: { code: "UNAUTHORIZED" } })
 		//	}
-		//	const task = await createTask({ name, deadline, user_id: auth.sub })
+		//	const task = await createTask({ name, deadline, user_id: token.sub })
 		//	publishSubscribe.publish("TASK_ADDED", { newTask: task });
 
 		//	return task
 		//},
 
-		//transferTask: async (_, { input: { task_id, user_id } }, { auth }) => {
-		//	if (!auth) {
+		//transferTask: async (_, { input: { task_id, user_id } }, { token }) => {
+		//	if (!token) {
 		//		throw new GraphQLError("Usuario no autorizado", { extensions: { code: "UNAUTHORIZED" } })
 		//	}
 
@@ -85,7 +105,7 @@ export const resolvers = {
 		//		})
 		//	}
 
-		//	if (auth.sub != task.user_id) {
+		//	if (token.sub != task.user_id) {
 		//		throw new GraphQLError("La tarea especificada no pertence a este usuario", { extensions: { code: "UNAUTHORIZED" } })
 		//	}
 

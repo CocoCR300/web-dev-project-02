@@ -4,6 +4,10 @@ type User {
     name: String!
 }
 
+type IdResult {
+    id: ID!
+}
+
 input CreateUserInput {
     full_name: String!
     name: String!
@@ -11,19 +15,19 @@ input CreateUserInput {
 }
 
 input UpdateUserInput {
-    id: ID!
-    full_name: String!
-    name: String!
-    password: String!
+    full_name: String
+    name: String
+    password: String
 }
 
 type Mutation {
     createUser(input: CreateUserInput!): User!
-    updateUser(input: UpdateUserInput!): User
-    deleteUser(id: ID!): User
+    updateSelf(input: UpdateUserInput!): User
+    deleteSelf: IdResult
 }
 
 type Query {
+    me: User!
     user(id: ID!): User    
     users(limit: Int): [User!]
 }

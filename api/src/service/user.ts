@@ -1,3 +1,5 @@
+import { assert } from "node:console";
+import { createToken } from "../auth";
 import { databaseConnection } from "../database-connection";
 import { User } from "../model/user";
 
@@ -39,15 +41,10 @@ export async function createUser(name: string, full_name: string, password: stri
 	return newUser;
 }
 
-export async function deleteUser(id: number): Promise<User | null>
+export async function deleteUser(id: number): Promise<boolean>
 {
-	const rows: any[] = await usersTable().where({ id }).delete();
-	if (rows.length == 1) {
-		return null;
-	}
-
-	const deletedUser = rows[0];
-	return deletedUser;
+	const rowsDeleted: number = await usersTable().where({ id }).delete();
+	return rowsDeleted == 1;
 }
 
 export async function updateUser(id: number, name?: string, full_name?: string, password?: string): Promise<User | null>

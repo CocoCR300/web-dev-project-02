@@ -3,7 +3,7 @@ import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import express from "express";
 import cors from "cors";
-import { expressMiddleware } from "@as-integrations/express5";
+import { ExpressContextFunctionArgument, expressMiddleware } from "@as-integrations/express5";
 import { readFile } from "fs/promises";
 import { createServer } from "node:http"
 // @ts-ignore
@@ -12,16 +12,30 @@ import { IExecutableSchemaDefinition, makeExecutableSchema } from "@graphql-tool
 import { WebSocketServer } from "ws";
 import { ListenOptions } from "node:net";
 import { resolvers } from "./graphql-resolvers";
-import { decodeToken } from "./auth";
+import { createToken, decodeToken, expressJwtMiddleware } from "./auth";
+import { ApolloServerContext } from "./typedef";
 
-interface ApolloServerContext
+async function login(req: any, res: any)
 {
-	auth?: string;
+	const requestBody = req.body;
+	const { name, password } = requestBody;
+	const token = await createToken(name, password);
+
+	if (token == "") {
+		res.sendStatus(401);
+	}
+	else {
+		res.json(token);
+	}
 }
 
-async function getContext({ req }): Promise<ApolloServerContext>
+async function getApolloContext(expressArgs: ExpressContextFunctionArgument): Promise<ApolloServerContext>
 {
-	return { auth: req.auth }
+	const { req } = expressArgs;
+	const token = req["auth"];
+	const context: ApolloServerContext = { token };
+
+	return context;
 }
 
 async function getWebSocketContext({ connectionParams })
@@ -35,7 +49,8 @@ async function getWebSocketContext({ connectionParams })
 	return { user: payload };
 }
 
-const PORT = process.env["PORT"]
+const PORT = parseInt(process.env["PORT"]);
+const GRAPHQL_ROOT = "/graphql";
 
 const typeDefinitions = await readFile("./schema.graphql", "utf-8");
 const schemaDefinition: IExecutableSchemaDefinition = {
@@ -47,7 +62,7 @@ const graphSchema = makeExecutableSchema(schemaDefinition);
 const application = express()
 const httpServer = createServer(application)
 const webSocketServer = new WebSocketServer({
-	server: httpServer, path: "/"
+	server: httpServer, path: GRAPHQL_ROOT
 });
 const serverCleanup = useServer({ context: getWebSocketContext, schema: graphSchema }, webSocketServer);
 const apolloServer = new ApolloServer<ApolloServerContext>({
@@ -67,13 +82,14 @@ const apolloServer = new ApolloServer<ApolloServerContext>({
 })
 
 await apolloServer.start()
+const apolloExpressMiddleware = expressMiddleware(apolloServer, { context: getApolloContext });
 
-const apolloExpressMiddleware = expressMiddleware(apolloServer, { context: getContext });
-application.use("/", cors<cors.CorsRequest>(), express.json(), apolloExpressMiddleware as any)
-// application.post("/login", getToken)
+application.use(cors<cors.CorsRequest>(), express.json());
+application.post("/login", login);
+application.use(GRAPHQL_ROOT, expressJwtMiddleware as any, apolloExpressMiddleware as any)
 
 const listenOptions: ListenOptions = { port: PORT };
 httpServer.listen(listenOptions, () => {
-	console.log(`Listening on: http://localhost:${PORT}/`)
+	console.log(`Listening on: http://localhost:${PORT}`)
 })
 
