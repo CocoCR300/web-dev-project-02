@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import express from "express";
@@ -34,7 +35,7 @@ async function getWebSocketContext({ connectionParams })
 	return { user: payload };
 }
 
-const PORT = 9001
+const PORT = process.env["PORT"]
 
 const typeDefinitions = await readFile("./schema.graphql", "utf-8");
 const schemaDefinition: IExecutableSchemaDefinition = {

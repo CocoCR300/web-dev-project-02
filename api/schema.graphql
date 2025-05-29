@@ -4,7 +4,13 @@ type User {
     name: String!
 }
 
-input UserInput {
+input CreateUserInput {
+    full_name: String!
+    name: String!
+    password: String!
+}
+
+input UpdateUserInput {
     id: ID!
     full_name: String!
     name: String!
@@ -12,8 +18,8 @@ input UserInput {
 }
 
 type Mutation {
-    createUser(input: UserInput!): User!
-    updateUser(input: UserInput!): User
+    createUser(input: CreateUserInput!): User!
+    updateUser(input: UpdateUserInput!): User
     deleteUser(id: ID!): User
 }
 

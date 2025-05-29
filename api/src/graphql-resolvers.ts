@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import { userById } from "./service/user";
+import { createUser, deleteUser, updateUser, userById, users } from "./service/user";
 import { User } from "./model/user";
 import { PubSub } from "graphql-subscriptions";
 
@@ -22,6 +22,11 @@ export const resolvers = {
 			}
 
 			return user
+		},
+		users: async (_, { limit }): Promise<User[]> => {
+			if (!limit) { limit = 0; }
+
+			return users(limit);
 		}
 	},
 	//Task: {
@@ -33,6 +38,29 @@ export const resolvers = {
 	//	}
 	//},
 	Mutation: {
+		createUser: (_, { input }): Promise<User> => {
+			const { name, full_name, password } = input;
+			const newUser = createUser(name, full_name, password);
+
+			return newUser;
+		},
+		deleteUser: (_, { id }): Promise<User | null> => {
+			const deletedUser = deleteUser(id);
+			if (!deletedUser) {
+				throw new GraphQLError("User not found", { extensions: { code: "NOT_FOUND" } });
+			}
+
+			return deletedUser;
+		},
+		updateUser: async (_, { input }): Promise<User> => {
+			const { id, name, full_name, password } = input;
+			const updatedUser = await updateUser(id, name, full_name, password);
+			if (!updatedUser) {
+				throw new GraphQLError("User not found", { extensions: { code: "NOT_FOUND" } });
+			}
+
+			return updatedUser;
+		},
 		//createTask: async (_root, { input: { name, deadline } }, { auth }) => {
 		//	if (!auth) {
 		//		throw new GraphQLError("Usuario no autorizado", { extensions: { code: "UNAUTHORIZED" } })

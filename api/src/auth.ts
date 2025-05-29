@@ -2,7 +2,8 @@ import { expressjwt } from "express-jwt";
 import jwt from "jsonwebtoken";
 import { userByName } from "./service/user";
 
-const secret = Buffer.from("contraseñaSuperSecreta", "base64");
+const rawSecret = process.env["JWT_SECRET"];
+const secret = Buffer.from(rawSecret, "base64");
 
 export const expressJwtMiddleware = expressjwt({
     algorithms: ["HS256"],
@@ -10,7 +11,7 @@ export const expressJwtMiddleware = expressjwt({
     secret,
 });
 
-export async function getToken(request, response)
+export async function getToken(request: Express.Request, response: Express.Response)
 {
     const { name, password } = request.body;
     const user = await userByName(name);
