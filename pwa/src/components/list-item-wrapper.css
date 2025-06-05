@@ -1,0 +1,3 @@
+.list-item-wrapper:not([data-index='0']) {
+	padding-top: 0.6rem;
+}

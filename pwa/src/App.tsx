@@ -1,28 +1,26 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import './App.css'
-import { Home, Search, Settings } from 'lucide-react'
+import { BanknoteIcon, Search, Settings } from 'lucide-react'
 import { ThemeProvider } from './theme-provider';
+import FinancesPage from './pages/finances';
 
 const tabItems = [
 	{
-		content: "Hello, world!",
-		key: "home",
-		title: "Home",
-		url: "#",
-		icon: <Home/>,
+		content: <FinancesPage/>,
+		key: "finances",
+		title: "Finances",
+		icon: <BanknoteIcon/>,
 	},
 	{
 		content: "Hello, search!",
 		key: "search",
 		title: "Search",
-		url: "#",
 		icon: <Search/>,
 	},
 	{
 		content: "Hello, settings!",
 		key: "settings",
 		title: "Settings",
-		url: "#",
 		icon: <Settings/>,
 	},
 ];
@@ -30,17 +28,14 @@ const tabItems = [
 function App() {
 	return (
 		<ThemeProvider>
-			<Tabs defaultValue="account" style={{
-				display: "flex",
+			<Tabs className="column flex h-full w-full" defaultValue="finances" style={{
 				flexFlow: "column",
-				height: "100%",
-				padding: "1em",
-				width: "100%"
+				padding: "1em"
 			}}>
-				<div style={{ flex: 1, marginBottom: "0.5em" }}>
+				<div style={{ flex: 1, marginBottom: "1em" }}>
 					{
 						tabItems.map(item => (
-							<TabsContent value={item.key}>
+							<TabsContent value={item.key} style={{ height: "100%" }}>
 								{ item.content }
 							</TabsContent>
 						))
