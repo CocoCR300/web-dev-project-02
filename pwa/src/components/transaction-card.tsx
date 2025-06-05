@@ -12,11 +12,15 @@ const DATE_TIME_FORMAT = new Intl.DateTimeFormat(undefined, {
 	timeStyle: "short"
 });
 
+// Colors: 
+// - Incomes: Light: oklch(72.3% 0.219 149.579), Dark: *missing*
+// - Expenses: Light: *missing*, Dark: oklch(25.8% 0.092 26.042)
+// Need 
 export default function TransactionCard(data: TransactionCardData)
 {
 	const { transaction } = data;
 	return (
-		<Card className="p-3 gap-4" style={{ backgroundColor: "oklch(25.8% 0.092 26.042)" }}>
+		<Card className="p-3 gap-4" style={{ backgroundColor: "oklch(72.3% 0.219 149.579)" }}>
 			<h2 className="scroll-m-20 border-b ml-2 pb-2 text-3xl font-semibold tracking-tight">{ transaction.amount.toFixed(2) }</h2>
 			<Badge className="ml-2">{ transaction.category }</Badge>
 			<p className="ml-2">{ DATE_TIME_FORMAT.format(transaction.date) }</p>
