@@ -1,5 +1,5 @@
 import PouchDB from "pouchdb";
-import { get } from "../database";
+import { create, get, update } from "../database";
 import type { Transaction } from "../typedef";
 
 const DATABASE = new PouchDB("transactions");
@@ -19,4 +19,20 @@ export async function transactions(searchFilter: string, offset: number, limit: 
 	}
 
 	return transactions;
+}
+
+export async function saveTransaction(transaction: Transaction): Promise<boolean>
+{
+	if (transaction._id) {
+		return update(DATABASE, transaction._id, transaction);
+	}
+	else {
+		const id = await create(DATABASE, transaction);
+		if (id) {
+			transaction._id = id;
+		}
+
+		return id != "";
+	}
+
 }

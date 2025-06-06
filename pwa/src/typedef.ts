@@ -1,6 +1,6 @@
 export interface Transaction
 {
-	_id?: string;
+	_id: string | null;
 	amount: number;
 	category: any;
 	date: Date;

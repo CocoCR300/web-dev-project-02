@@ -4,6 +4,7 @@ import { Card } from "./ui/card";
 
 export interface TransactionCardData
 {
+	onClick?: () => void;
 	transaction: Transaction;
 }
 
@@ -18,10 +19,15 @@ const DATE_TIME_FORMAT = new Intl.DateTimeFormat(undefined, {
 // Need 
 export default function TransactionCard(data: TransactionCardData)
 {
-	const { transaction } = data;
+	const { onClick, transaction } = data;
 	return (
-		<Card className="p-3 gap-4" style={{ backgroundColor: "oklch(72.3% 0.219 149.579)" }}>
-			<h2 className="scroll-m-20 border-b ml-2 pb-2 text-3xl font-semibold tracking-tight">{ transaction.amount.toFixed(2) }</h2>
+		<Card className="p-3 gap-4" onClick={ onClick }>
+			<div className="border-b flex gap-2 ml-2 pb-2 scroll-m-20">
+				<div className="text-muted-foreground text-[1.5rem]">
+					$
+				</div>
+				<h2 className="text-3xl font-semibold tracking-tight">{ transaction.amount.toFixed(2) }</h2>
+			</div>
 			<Badge className="ml-2">{ transaction.category }</Badge>
 			<p className="ml-2">{ DATE_TIME_FORMAT.format(transaction.date) }</p>
 			<p className="ml-2">{ transaction.description }</p>
