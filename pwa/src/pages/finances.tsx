@@ -2,17 +2,20 @@ import { useEffect, useState } from "react";
 import TransactionCard from "../components/transaction-card";
 import type { Transaction } from "../typedef";
 import ListView from "../components/list-view";
-import { saveTransaction, transactions } from "../services/finances";
+import { deleteTransaction, saveTransaction, transactions } from "../services/finances";
 import { Button } from "../components/ui/button";
-import { Loader, MinusIcon, PlusIcon } from "lucide-react";
+import { Calendar, ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "../components/ui/drawer";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { Input } from "../components/ui/input";
 
 interface TransactionDrawerData
 {
 	index: number | null;
 	open: boolean;
+	remove: (index: number) => Promise<boolean>;
 	save: (index: number | null, transaction: Transaction) => Promise<boolean>;
 	setOpen: (open: boolean) => void;
 	transaction: Transaction | null;
@@ -20,7 +23,7 @@ interface TransactionDrawerData
 
 function TransactionDrawer(data: TransactionDrawerData)
 {
-	const { index, open, save, setOpen, transaction } = data;
+	const { index, open, remove, save, setOpen, transaction } = data;
 	const transactionId = transaction?._id || null;
 
 	const [amount, setAmount] = useState<number>(0);
@@ -39,10 +42,30 @@ function TransactionDrawer(data: TransactionDrawerData)
 		};
 
 		setLoading(true);
-		await new Promise((resolve, _) => setTimeout(resolve, 5000));
-		await save(index, newTransaction);
-		setLoading(false);
-		setOpen(false);
+		await new Promise((resolve, _) => setTimeout(resolve, 2000));
+		const saved = await save(index, newTransaction);
+		if (saved) {
+			setLoading(false);
+			setOpen(false);
+		}
+	}
+
+	async function deleteTransaction() {
+		setLoading(true);
+		await new Promise((resolve, _) => setTimeout(resolve, 2000));
+		const removed = await remove(index!);
+		if (removed) {
+			setLoading(false);
+			setOpen(false);
+		}
+	}
+
+	function openChange(open: boolean) {
+		if (loading) {
+			return;
+		}
+
+		setOpen(open);
 	}
 
 	useEffect(() => {
@@ -57,14 +80,18 @@ function TransactionDrawer(data: TransactionDrawerData)
 	}, [open, transaction]);
 
 	return (
-		<Drawer open={open} onOpenChange={setOpen}>
+		<Drawer open={open} onOpenChange={ openChange }>
 			<DrawerTrigger className="self-center flex gap-2 text-center">
 				<PlusIcon/>
 				Agregar
 			</DrawerTrigger>
 			<DrawerContent>
-				<div className="mx-auto w-full max-w-sm">
-					{loading && (<Loader className="animate-spin"/>)}
+				{ loading &&
+					<div className="absolute bg-[rgba(0,0,0,75%)] h-full w-full">
+						<LoaderIcon className="absolute animate-spin left-[50%] top-50"/>
+					</div>
+				}
+				<div className="mx-auto max-w-sm w-full">
 					<DrawerHeader>
 						<DrawerTitle>Nueva transacción</DrawerTitle>
 						<DrawerDescription>Agrega tus ingresos o gastos</DrawerDescription>
@@ -99,11 +126,47 @@ function TransactionDrawer(data: TransactionDrawerData)
 								<span className="sr-only">Increase</span>
 							</Button>
 						</div>
+						<div className="gap-3 grid">
+							<Label>
+								Fecha y hora
+							</Label>
+							<div className="flex gap-4">
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button
+											variant="outline"
+											id="date"
+											className="w-48 justify-between font-normal">
+											{date ? date.toLocaleDateString() : "Select date"}
+											<ChevronDownIcon />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="w-auto overflow-hidden p-0" align="start">
+										<Calendar
+											captionLayout="dropdown"
+											mode="single"
+											selected={date}
+											onSelect={ event => {
+												setDate(event)
+											}}/>
+									</PopoverContent>
+								</Popover>
+								<Input
+									defaultValue="10:30:00"
+									type="time"
+									id="time"
+									step="1"
+									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"/>
+							</div>
+						</div>
 						<div className="grid gap-3">
 							<Label htmlFor="description">Description</Label>
 							<Textarea id="description" onChange={ event => setDescription(event.target.value) } value={ description } />
 						</div>
-						<Button onClick={ saveTransaction }>Guardar</Button>
+						<div className="grid gap-3">
+							<Button onClick={ saveTransaction }>Guardar</Button>
+							{ index != null && <Button className="bg-[red!important] text-white" onClick={ deleteTransaction }>Eliminar</Button> }
+						</div>
 					</div>
 				</div>
 			</DrawerContent>
@@ -130,7 +193,19 @@ export default function FinancesPage()
 		setItems(items);
 	}
 
-	async function save(index: number | null, newTransaction: Transaction): Promise<boolean> {
+	async function removeItem(index: number): Promise<boolean> {
+		const id = items[index]._id!;
+		const success = await deleteTransaction(id);
+		if (success) {
+			const newItems = [...items];
+			newItems.splice(index, 1);
+			setItems(newItems);
+		}
+
+		return success;
+	}
+
+	async function saveItem(index: number | null, newTransaction: Transaction): Promise<boolean> {
 		const success = await saveTransaction(newTransaction);
 		let newItems;
 		if (index) {
@@ -168,7 +243,7 @@ export default function FinancesPage()
 				}
 			}>
 			</ListView>
-			<TransactionDrawer index={ selectedTransactionIndex }open={ drawerOpen } setOpen={ toggleDrawer } transaction={ selectedTransaction } save={ save } />
+			<TransactionDrawer remove={ removeItem } index={ selectedTransactionIndex }open={ drawerOpen } setOpen={ toggleDrawer } transaction={ selectedTransaction } save={ saveItem } />
 		</div>
 	);
 }

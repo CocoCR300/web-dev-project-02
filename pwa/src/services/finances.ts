@@ -1,5 +1,5 @@
 import PouchDB from "pouchdb";
-import { create, get, update } from "../database";
+import { create, get, remove, update } from "../database";
 import type { Transaction } from "../typedef";
 
 const DATABASE = new PouchDB("transactions");
@@ -34,5 +34,9 @@ export async function saveTransaction(transaction: Transaction): Promise<boolean
 
 		return id != "";
 	}
+}
 
+export async function deleteTransaction(id: string): Promise<boolean>
+{
+	return await remove(DATABASE, id);
 }

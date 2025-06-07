@@ -26,7 +26,7 @@ export default function TransactionCard(data: TransactionCardData)
 				<div className="text-muted-foreground text-[1.5rem]">
 					$
 				</div>
-				<h2 className="text-3xl font-semibold tracking-tight">{ transaction.amount.toFixed(2) }</h2>
+				<h2 className="text-3xl font-semibold tracking-tight">{ transaction.amount }</h2>
 			</div>
 			<Badge className="ml-2">{ transaction.category }</Badge>
 			<p className="ml-2">{ DATE_TIME_FORMAT.format(transaction.date) }</p>
