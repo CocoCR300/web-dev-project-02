@@ -4,12 +4,13 @@ import type { Transaction } from "../typedef";
 import ListView from "../components/list-view";
 import { deleteTransaction, saveTransaction, transactions } from "../services/finances";
 import { Button } from "../components/ui/button";
-import { Calendar, ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
+import { ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "../components/ui/drawer";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Input } from "../components/ui/input";
+import { Calendar } from "../components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 
 interface TransactionDrawerData
 {
@@ -31,6 +32,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 	const [date, setDate] = useState<Date>(new Date());
 	const [description, setDescription] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
+	const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
 
 	function changeAmount(newAmount: number) {
 		setAmount(current => current + newAmount);
@@ -81,9 +83,11 @@ function TransactionDrawer(data: TransactionDrawerData)
 
 	return (
 		<Drawer open={open} onOpenChange={ openChange }>
-			<DrawerTrigger className="self-center flex gap-2 text-center">
-				<PlusIcon/>
-				Agregar
+			<DrawerTrigger>
+				<Button variant="outline">
+					<PlusIcon/>
+					Agregar
+				</Button>
 			</DrawerTrigger>
 			<DrawerContent>
 				{ loading &&
@@ -131,7 +135,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 								Fecha y hora
 							</Label>
 							<div className="flex gap-4">
-								<Popover>
+								<Popover open={ datePickerOpen } onOpenChange={ setDatePickerOpen }>
 									<PopoverTrigger asChild>
 										<Button
 											variant="outline"
@@ -146,17 +150,19 @@ function TransactionDrawer(data: TransactionDrawerData)
 											captionLayout="dropdown"
 											mode="single"
 											selected={date}
-											onSelect={ event => {
-												setDate(event)
+											onSelect={ (event) => {
+												const date = event as Date;
+												setDate(date);
+												setDatePickerOpen(false);
 											}}/>
 									</PopoverContent>
 								</Popover>
 								<Input
-									defaultValue="10:30:00"
-									type="time"
+									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+									defaultValue="10:30"
 									id="time"
 									step="1"
-									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"/>
+									type="time"/>
 							</div>
 						</div>
 						<div className="grid gap-3">
@@ -165,7 +171,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 						</div>
 						<div className="grid gap-3">
 							<Button onClick={ saveTransaction }>Guardar</Button>
-							{ index != null && <Button className="bg-[red!important] text-white" onClick={ deleteTransaction }>Eliminar</Button> }
+							{ index != null && <Button onClick={ deleteTransaction } variant="destructive">Eliminar</Button> }
 						</div>
 					</div>
 				</div>

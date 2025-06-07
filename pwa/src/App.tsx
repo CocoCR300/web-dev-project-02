@@ -1,8 +1,8 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
-import './App.css'
 import { BanknoteIcon, Search, Settings } from 'lucide-react'
 import { ThemeProvider } from './theme-provider';
 import FinancesPage from './pages/finances';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
+import './App.css'
 
 const tabItems = [
 	{
@@ -32,7 +32,7 @@ function App() {
 				flexFlow: "column",
 				padding: "1em"
 			}}>
-				<div style={{ flex: 1, marginBottom: "1em" }}>
+				<div className="flex-1 mb-[1em]">
 					{
 						tabItems.map(item => (
 							<TabsContent value={item.key} style={{ height: "100%" }}>
@@ -41,7 +41,7 @@ function App() {
 						))
 					}
 				</div>
-				<TabsList style={{ columnGap: "0.5em", display: "flex", justifyContent: "center" }}>
+				<TabsList className="flex gap-x-[1em] self-center">
 					{
 						tabItems.map(item => (
 							<TabsTrigger value={item.key}>
