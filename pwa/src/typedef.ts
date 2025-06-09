@@ -1,15 +1,19 @@
 export interface Transaction
 {
 	_id: string | null;
-	category: string;
+	categoryId: string;
 	amount: number;
 	date: Date;
 	description: string;
-	type: "transaction"
 }
 
-export interface Category{
+export interface Category
+{
 	_id?: string;
 	name: string;
-	type: "category";
 }
+
+export const DEFAULT_CATEGORY: Category = {
+	_id: "default",
+	name: "Sin categoría"
+};

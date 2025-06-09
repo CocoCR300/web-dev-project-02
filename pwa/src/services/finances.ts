@@ -5,7 +5,15 @@ import type { Transaction } from "../typedef";
 const DATABASE = new PouchDB("transactions");
 
 // Delete database, uncomment when needed
-//DATABASES.get("transactions")!.destroy();
+//DATABASE.destroy();
+const items = await transactions("", 0, 1);
+if (items.length == 0) {
+	const date = new Date();
+	date.setFullYear(2000);
+
+	saveTransaction({ _id: "", amount: -100, categoryId: "", date: new Date(), description: "Went to the mall again!" });
+	saveTransaction({ _id: "", amount: 1000, categoryId: "", date, description: "Another day of hard work" });
+}
 
 DATABASE.createIndex({
 	index: { fields: [ "date" ] }

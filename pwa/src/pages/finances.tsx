@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import TransactionCard from "../components/transaction-card";
-import type { Transaction, Category } from "../typedef";
+import { type Transaction, type Category, DEFAULT_CATEGORY } from "../typedef";
 import ListView from "../components/list-view";
 import { category as fetchCategories, saveCategory } from "../services/Categories";
 import { deleteTransaction, saveTransaction, transactions } from "../services/finances";
 import { Button } from "../components/ui/button";
-import { Calendar, ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
+import { ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "../components/ui/drawer";
+import { Calendar } from "../components/ui/calendar";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 import { Input } from "../components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 
-interface TransactionDrawerData
-{
+interface TransactionDrawerData {
 	index: number | null;
 	open: boolean;
 	remove: (index: number) => Promise<boolean>;
@@ -22,14 +23,19 @@ interface TransactionDrawerData
 	transaction: Transaction | null;
 }
 
-function TransactionDrawer(data: TransactionDrawerData)
-{
+const TIME_FORMAT = new Intl.DateTimeFormat(undefined, {
+	hour: "2-digit",
+	hour12: false,
+	minute: "2-digit"
+});
+
+function TransactionDrawer(data: TransactionDrawerData) {
 	const { index, open, remove, save, setOpen, transaction } = data;
 	const transactionId = transaction?._id || null;
 
 	const [amount, setAmount] = useState<number>(0);
 	const [categoryList, setCategoryList] = useState<Category[]>([]);
-	const [category, setCategory] = useState<string>("");
+	const [categoryId, setCategoryId] = useState<string>(DEFAULT_CATEGORY._id!);
 	const [date, setDate] = useState<Date>(new Date());
 	const [description, setDescription] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
@@ -39,31 +45,10 @@ function TransactionDrawer(data: TransactionDrawerData)
 	}
 
 	async function saveTransaction() {
-		let assignedCategory = category;
-
-		if (!assignedCategory) {
-		const existing = categoryList.find(cat => cat.name === "Sin categoría");
-
-		if (!existing) {
-			const created = await saveCategory({
-				_id: "no-category",
-				name: "Sin categoría",
-				type: "category"
-			});
-			if (created) {
-				const updated = await fetchCategories("", 0, 100);
-				setCategoryList(updated);
-				}
-				assignedCategory = "Sin categoría";
-			} else {
-				assignedCategory = existing.name;
-			}
-		}
-
 		const newTransaction: Transaction = {
-			_id: transactionId, amount, category: assignedCategory, description, date, type: "transaction"
+			_id: transactionId, amount, categoryId, description, date
 		};
-		
+
 		setLoading(true);
 		await new Promise((resolve, _) => setTimeout(resolve, 2000));
 		const saved = await save(index, newTransaction);
@@ -72,7 +57,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 			setOpen(false);
 		}
 	}
-	
+
 	async function deleteTransaction() {
 		setLoading(true);
 		await new Promise((resolve, _) => setTimeout(resolve, 2000));
@@ -82,44 +67,47 @@ function TransactionDrawer(data: TransactionDrawerData)
 			setOpen(false);
 		}
 	}
-	
+
+	async function getCategories() {
+		const categories = await fetchCategories("", 0, 100);
+		setCategoryList(categories);
+	}
+
 	function openChange(open: boolean) {
 		if (loading) {
 			return;
 		}
-		
+
 		setOpen(open);
 	}
-	
+
 	useEffect(() => {
+		getCategories();
+
 		if (transaction) {
 			setAmount(transaction.amount);
 			setDescription(transaction.description);
-			setCategory(transaction.category)
+			setCategoryId(transaction.categoryId);
 		}
 		else {
 			setAmount(0);
 			setDescription("");
-			setCategory("")
+			setCategoryId(DEFAULT_CATEGORY._id!)
 		}
-		
-		(async()=>{
-			const result = await fetchCategories("",0,100);
-			setCategoryList(result)
-		})();
-		
 	}, [open, transaction]);
-	
+
 	return (
-		<Drawer open={open} onOpenChange={ openChange }>
-			<DrawerTrigger className="self-center flex gap-2 text-center">
-				<PlusIcon/>
-				Agregar
+		<Drawer open={open} onOpenChange={openChange}>
+			<DrawerTrigger asChild className="self-center">
+				<Button variant="outline">
+					<PlusIcon />
+					Agregar
+				</Button>
 			</DrawerTrigger>
 			<DrawerContent>
-				{ loading &&
+				{loading &&
 					<div className="absolute bg-[rgba(0,0,0,75%)] h-full w-full">
-						<LoaderIcon className="absolute animate-spin left-[50%] top-50"/>
+						<LoaderIcon className="absolute animate-spin left-[50%] top-50" />
 					</div>
 				}
 				<div className="mx-auto max-w-sm w-full">
@@ -130,7 +118,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 					<div className="gap-6 grid items-start pb-4">
 						<div className="flex items-center justify-center space-x-2">
 							<Button
-								disabled={ amount == 10_000 }
+								disabled={amount == 10_000}
 								className="h-8 w-8 shrink-0 rounded-full"
 								size="icon"
 								onClick={() => changeAmount(-10)}
@@ -149,7 +137,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 							</div>
 							<Button
 								className="h-8 w-8 shrink-0 rounded-full"
-								disabled={ amount == 10_000 }
+								disabled={amount == 10_000}
 								onClick={() => changeAmount(10)}
 								size="icon"
 								variant="outline">
@@ -177,42 +165,48 @@ function TransactionDrawer(data: TransactionDrawerData)
 											captionLayout="dropdown"
 											mode="single"
 											selected={date}
-											onSelect={ event => {
-												setDate(event)
-											}}/>
+											onSelect={event => {
+												const date = event as Date;
+												setDate(date)
+											}} />
 									</PopoverContent>
 								</Popover>
 								<Input
-									defaultValue="10:30:00"
-									type="time"
+									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+									defaultValue={TIME_FORMAT.format(new Date())}
 									id="time"
 									step="1"
-									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"/>
+									type="time" />
 							</div>
 						</div>
 						<div className="grid gap-3">
 							<Label htmlFor="category">Categoría</Label>
-								<select
-									id="category"
-									value={category}
-									onChange={(e) => setCategory(e.target.value)}
-									className="bg-background border border-input px-3 py-2 rounded-md text-sm"
-									>
-								<option value="">Selecciona una categoría</option>
-								{categoryList.map((cat) => (
-								<option key={cat._id} value={cat.name}>
-								{cat.name}
-							</option>
-							))}
-								</select>
+							<Select
+								defaultValue={ DEFAULT_CATEGORY._id! }
+								value={ categoryId }
+								onValueChange={ value => setCategoryId(value) }>
+								<SelectTrigger className="w-full">
+									<SelectValue id="category" placeholder="Seleccione una categoría" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value={ DEFAULT_CATEGORY._id! }>{ DEFAULT_CATEGORY.name }</SelectItem>
+									{
+										categoryList.map(cat => (
+											<SelectItem value={cat._id!}>
+												{cat.name}
+											</SelectItem>
+										))
+									}
+								</SelectContent>
+							</Select>
 						</div>
 						<div className="grid gap-3">
 							<Label htmlFor="description">Description</Label>
-							<Textarea id="description" onChange={ event => setDescription(event.target.value) } value={ description } />
+							<Textarea id="description" onChange={event => setDescription(event.target.value)} value={description} />
 						</div>
 						<div className="grid gap-3">
-							<Button onClick={ saveTransaction }>Guardar</Button>
-							{ index != null && <Button className="bg-[red!important] text-white" onClick={ deleteTransaction }>Eliminar</Button> }
+							<Button onClick={saveTransaction}>Guardar</Button>
+							{index != null && <Button className="bg-[red!important] text-white" onClick={deleteTransaction}>Eliminar</Button>}
 						</div>
 					</div>
 				</div>
@@ -221,22 +215,26 @@ function TransactionDrawer(data: TransactionDrawerData)
 	);
 }
 
-export default function FinancesPage()
-{
+export default function FinancesPage() {
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [categories, setCategories] = useState<Map<string, Category>>(new Map());
 	const [items, setItems] = useState<Transaction[]>([]);
 	const [selectedTransactionIndex, selectTransactionIndex] = useState<number | null>(null);
 
 	useEffect(() => {
-		getTransactions();
+		load();
 	}, []);
 
-	async function getTransactions() {
-		// Uncomment when needed
-		//create("transactions", { amount: -100, category: "Shopping", date: new Date(), description: "Went to the mall again!" });
-		//create("transactions", { amount: 1000, category: "Job", date: new Date().setFullYear(2000), description: "Another day of hard work" });
-
+	async function load() {
+		const categories = await fetchCategories("", 0, 100);
 		const items = await transactions("", 0, 100);
+
+		const categoriesMap = new Map<string, Category>();
+		for (const category of categories) {
+			categoriesMap.set(category._id!, category);
+		}
+
+		setCategories(categoriesMap);
 		setItems(items);
 	}
 
@@ -255,7 +253,7 @@ export default function FinancesPage()
 	async function saveItem(index: number | null, newTransaction: Transaction): Promise<boolean> {
 		const success = await saveTransaction(newTransaction);
 		let newItems;
-		if (index) {
+		if (index != null) {
 			newItems = [...items.slice(0, index), newTransaction, ...items.slice(index + 1)];
 		}
 		else {
@@ -284,13 +282,14 @@ export default function FinancesPage()
 	return (
 		<div className="flex flex-col gap-2 h-full">
 			<ListView
-				items={ items }
+				items={items}
 				itemTemplate={(index, item) => {
-					return <TransactionCard onClick={ () => cardClicked(index) } transaction={ item } />
+					const category: Category = categories.get(item.categoryId) ?? DEFAULT_CATEGORY;
+					return <TransactionCard category={ category } onClick={() => cardClicked(index)} transaction={item} />
 				}
-			}>
+				}>
 			</ListView>
-			<TransactionDrawer remove={ removeItem } index={ selectedTransactionIndex }open={ drawerOpen } setOpen={ toggleDrawer } transaction={ selectedTransaction } save={ saveItem } />
+			<TransactionDrawer remove={removeItem} index={selectedTransactionIndex} open={drawerOpen} setOpen={toggleDrawer} transaction={selectedTransaction} save={saveItem} />
 		</div>
 	);
 }
