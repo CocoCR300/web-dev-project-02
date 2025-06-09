@@ -1,8 +1,10 @@
 import { BanknoteIcon, Search, Settings } from 'lucide-react'
 import { ThemeProvider } from './theme-provider';
 import FinancesPage from './pages/finances';
+import CategoriesPage from './pages/Categories';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import './App.css'
+
 
 const tabItems = [
 	{
@@ -12,7 +14,7 @@ const tabItems = [
 		icon: <BanknoteIcon/>,
 	},
 	{
-		content: "Hello, search!",
+		content: <CategoriesPage/>,
 		key: "search",
 		title: "Search",
 		icon: <Search/>,

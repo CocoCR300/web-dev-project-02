@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import TransactionCard from "../components/transaction-card";
-import type { Transaction } from "../typedef";
+import type { Transaction, Category } from "../typedef";
 import ListView from "../components/list-view";
+import { category as fetchCategories, saveCategory } from "../services/Categories";
 import { deleteTransaction, saveTransaction, transactions } from "../services/finances";
 import { Button } from "../components/ui/button";
-import { ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
+import { Calendar, ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "../components/ui/drawer";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Input } from "../components/ui/input";
-import { Calendar } from "../components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 
 interface TransactionDrawerData
 {
@@ -28,21 +28,42 @@ function TransactionDrawer(data: TransactionDrawerData)
 	const transactionId = transaction?._id || null;
 
 	const [amount, setAmount] = useState<number>(0);
+	const [categoryList, setCategoryList] = useState<Category[]>([]);
 	const [category, setCategory] = useState<string>("");
 	const [date, setDate] = useState<Date>(new Date());
 	const [description, setDescription] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
-	const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
 
 	function changeAmount(newAmount: number) {
 		setAmount(current => current + newAmount);
 	}
 
 	async function saveTransaction() {
-		const newTransaction: Transaction = {
-			_id: transactionId, amount, category, description, date
-		};
+		let assignedCategory = category;
 
+		if (!assignedCategory) {
+		const existing = categoryList.find(cat => cat.name === "Sin categoría");
+
+		if (!existing) {
+			const created = await saveCategory({
+				_id: "no-category",
+				name: "Sin categoría",
+				type: "category"
+			});
+			if (created) {
+				const updated = await fetchCategories("", 0, 100);
+				setCategoryList(updated);
+				}
+				assignedCategory = "Sin categoría";
+			} else {
+				assignedCategory = existing.name;
+			}
+		}
+
+		const newTransaction: Transaction = {
+			_id: transactionId, amount, category: assignedCategory, description, date, type: "transaction"
+		};
+		
 		setLoading(true);
 		await new Promise((resolve, _) => setTimeout(resolve, 2000));
 		const saved = await save(index, newTransaction);
@@ -51,7 +72,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 			setOpen(false);
 		}
 	}
-
+	
 	async function deleteTransaction() {
 		setLoading(true);
 		await new Promise((resolve, _) => setTimeout(resolve, 2000));
@@ -61,33 +82,39 @@ function TransactionDrawer(data: TransactionDrawerData)
 			setOpen(false);
 		}
 	}
-
+	
 	function openChange(open: boolean) {
 		if (loading) {
 			return;
 		}
-
+		
 		setOpen(open);
 	}
-
+	
 	useEffect(() => {
 		if (transaction) {
 			setAmount(transaction.amount);
 			setDescription(transaction.description);
+			setCategory(transaction.category)
 		}
 		else {
 			setAmount(0);
 			setDescription("");
+			setCategory("")
 		}
+		
+		(async()=>{
+			const result = await fetchCategories("",0,100);
+			setCategoryList(result)
+		})();
+		
 	}, [open, transaction]);
-
+	
 	return (
 		<Drawer open={open} onOpenChange={ openChange }>
-			<DrawerTrigger>
-				<Button variant="outline">
-					<PlusIcon/>
-					Agregar
-				</Button>
+			<DrawerTrigger className="self-center flex gap-2 text-center">
+				<PlusIcon/>
+				Agregar
 			</DrawerTrigger>
 			<DrawerContent>
 				{ loading &&
@@ -135,7 +162,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 								Fecha y hora
 							</Label>
 							<div className="flex gap-4">
-								<Popover open={ datePickerOpen } onOpenChange={ setDatePickerOpen }>
+								<Popover>
 									<PopoverTrigger asChild>
 										<Button
 											variant="outline"
@@ -150,20 +177,34 @@ function TransactionDrawer(data: TransactionDrawerData)
 											captionLayout="dropdown"
 											mode="single"
 											selected={date}
-											onSelect={ (event) => {
-												const date = event as Date;
-												setDate(date);
-												setDatePickerOpen(false);
+											onSelect={ event => {
+												setDate(event)
 											}}/>
 									</PopoverContent>
 								</Popover>
 								<Input
-									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-									defaultValue="10:30"
+									defaultValue="10:30:00"
+									type="time"
 									id="time"
 									step="1"
-									type="time"/>
+									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"/>
 							</div>
+						</div>
+						<div className="grid gap-3">
+							<Label htmlFor="category">Categoría</Label>
+								<select
+									id="category"
+									value={category}
+									onChange={(e) => setCategory(e.target.value)}
+									className="bg-background border border-input px-3 py-2 rounded-md text-sm"
+									>
+								<option value="">Selecciona una categoría</option>
+								{categoryList.map((cat) => (
+								<option key={cat._id} value={cat.name}>
+								{cat.name}
+							</option>
+							))}
+								</select>
 						</div>
 						<div className="grid gap-3">
 							<Label htmlFor="description">Description</Label>
@@ -171,7 +212,7 @@ function TransactionDrawer(data: TransactionDrawerData)
 						</div>
 						<div className="grid gap-3">
 							<Button onClick={ saveTransaction }>Guardar</Button>
-							{ index != null && <Button onClick={ deleteTransaction } variant="destructive">Eliminar</Button> }
+							{ index != null && <Button className="bg-[red!important] text-white" onClick={ deleteTransaction }>Eliminar</Button> }
 						</div>
 					</div>
 				</div>

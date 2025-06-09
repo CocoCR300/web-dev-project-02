@@ -1,9 +1,15 @@
 export interface Transaction
 {
 	_id: string | null;
+	category: string;
 	amount: number;
-	category: any;
 	date: Date;
 	description: string;
+	type: "transaction"
 }
 
+export interface Category{
+	_id?: string;
+	name: string;
+	type: "category";
+}
