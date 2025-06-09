@@ -43,10 +43,10 @@ function App() {
 						))
 					}
 				</div>
-				<TabsList className="flex gap-x-[1em] self-center">
+				<TabsList className="flex gap-x-[1em] self-center min-h-[4em]">
 					{
 						tabItems.map(item => (
-							<TabsTrigger value={item.key}>
+							<TabsTrigger className="flex flex-col" value={item.key}>
 								{ item.icon }
 								{ item.title }
 							</TabsTrigger>

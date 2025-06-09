@@ -5,6 +5,10 @@ import { transactions, deleteTransaction } from "../services/finances";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { XIcon } from "lucide-react";
+import { Virtuoso, VirtuosoGrid, type GridComponents } from "react-virtuoso";
+
+const VIRTUOSO_GRID_COMPONENTS: GridComponents = {
+};
 
 export default function CategoriesPage() {
 	const [categoryList, setCategoryList] = useState<Category[]>([]);
@@ -93,31 +97,41 @@ export default function CategoriesPage() {
 		}
 		else {
 			transactionListView = (
-				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{transactionList.map(tx => (
-						<div
-							key={tx._id}
-							className="bg-gray border rounded-xl shadow-sm p-4 space-y-1">
-							<h3 className="font-medium text-lg">{tx.description}</h3>
-							<p className="text-muted-foreground text-sm">
-								Monto: <span className="font-semibold">${tx.amount}</span>
-							</p>
-							<p className="text-muted-foreground text-sm">
-								Fecha: {tx.date.toLocaleDateString()}
-							</p>
-						</div>
-					))}
-				</div>
+				<VirtuosoGrid
+					listClassName="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pl-4 pr-4"
+					totalCount={ transactionList.length }
+					itemContent={ index => {
+						const transaction = transactionList[index];
+						return (
+							<div
+								key={ transaction._id }
+								className="bg-gray border rounded-xl shadow-sm p-4 space-y-1">
+								<h3 className="font-medium text-lg">{transaction.description}</h3>
+								<p className="text-muted-foreground text-sm">
+									Monto: <span className="font-semibold">${transaction.amount}</span>
+								</p>
+								<p className="text-muted-foreground text-sm">
+									Fecha: {transaction.date.toLocaleDateString()}
+								</p>
+							</div>
+						);
+					}}/>
 			);
+				//<!--<div className="grid gap-4  overflow-scroll">
+				//	{transactionList.map(tx => (
+				//	))}
+				//</div>-->
 		}
 
 		transactionsView = (
-			<div className="flex flex-1 flex-col mt-6">
+			<div className="flex flex-1 flex-col h-full mt-6">
 				<h2 className="text-xl font-semibold mb-4 text-center">
 					Transacciones en "{ selectedCategory.name }"
 				</h2>
 
-				{ transactionListView }
+				<div className="flex-1 pb-4">
+					{ transactionListView }
+				</div>
 			</div>
 		);
 	}
