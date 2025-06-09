@@ -2,6 +2,7 @@ import { BanknoteIcon, LineChartIcon, Search, Settings } from 'lucide-react'
 import { ThemeProvider } from './theme-provider';
 import FinancesPage from './pages/finances';
 import CategoriesPage from './pages/Categories';
+import HistoryPage from './pages/History';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import './App.css'
 
@@ -20,7 +21,7 @@ const tabItems = [
 		icon: <Search/>,
 	},
 	{
-		content: "History",
+		content: <HistoryPage/>,
 		key: "history",
 		title: "Historial",
 		icon: <LineChartIcon/>,
