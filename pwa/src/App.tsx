@@ -1,4 +1,4 @@
-import { BanknoteIcon, LineChartIcon, Search, Settings } from 'lucide-react'
+import { BanknoteIcon, LineChartIcon, Search, Settings, TagIcon } from 'lucide-react'
 import { ThemeProvider } from './theme-provider';
 import FinancesPage from './pages/finances';
 import CategoriesPage from './pages/Categories';
@@ -17,7 +17,7 @@ const tabItems = [
 		content: <CategoriesPage/>,
 		key: "categories",
 		title: "Categorías",
-		icon: <Search/>,
+		icon: <TagIcon/>,
 	},
 	{
 		content: "History",
