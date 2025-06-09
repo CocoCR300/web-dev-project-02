@@ -1,4 +1,4 @@
-import { BanknoteIcon, LineChartIcon, Search, Settings } from 'lucide-react'
+import { BanknoteIcon, LineChartIcon, Search, Settings, TagIcon } from 'lucide-react'
 import { ThemeProvider } from './theme-provider';
 import FinancesPage from './pages/finances';
 import CategoriesPage from './pages/Categories';
@@ -18,7 +18,7 @@ const tabItems = [
 		content: <CategoriesPage/>,
 		key: "categories",
 		title: "Categorías",
-		icon: <Search/>,
+		icon: <TagIcon/>,
 	},
 	{
 		content: <HistoryPage/>,
@@ -44,10 +44,10 @@ function App() {
 						))
 					}
 				</div>
-				<TabsList className="flex gap-x-[1em] self-center">
+				<TabsList className="flex gap-x-[1em] self-center min-h-[4em]">
 					{
 						tabItems.map(item => (
-							<TabsTrigger value={item.key}>
+							<TabsTrigger className="flex flex-col" value={item.key}>
 								{ item.icon }
 								{ item.title }
 							</TabsTrigger>
