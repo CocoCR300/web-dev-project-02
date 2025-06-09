@@ -260,6 +260,8 @@ export default function FinancesPage() {
 			newItems = [...items, newTransaction];
 		}
 
+		newItems.sort((t0, t1) => t1.date.getTime() - t0.date.getTime());
+
 		setItems(newItems);
 
 		return success;
