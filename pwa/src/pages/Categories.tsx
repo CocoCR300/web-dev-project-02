@@ -102,14 +102,16 @@ export default function CategoriesPage() {
 						return (
 							<div
 								key={ transaction._id }
-								className="bg-gray border rounded-xl shadow-sm p-4 space-y-1">
-								<h3 className="font-medium overflow-hidden text-lg text-ellipsis">{transaction.description}</h3>
-								<p className="text-muted-foreground text-sm">
-									Monto: <span className="font-semibold">${transaction.amount}</span>
-								</p>
-								<p className="text-muted-foreground text-sm">
-									Fecha: {transaction.date.toLocaleDateString()}
-								</p>
+								className="bg-gray border flex flex-col h-[10em] rounded-xl shadow-sm p-4 space-y-1">
+								<h3 className="font-medium line-clamp-2 overflow-hidden text-lg text-ellipsis">{transaction.description}</h3>
+								<div className="align-items-end flex flex-col justify-end flex-1">
+									<p className="text-muted-foreground text-sm">
+										Monto: <span className="font-semibold">${transaction.amount}</span>
+									</p>
+									<p className="text-muted-foreground text-sm">
+										Fecha: {transaction.date.toLocaleDateString()}
+									</p>
+								</div>
 							</div>
 						);
 					}}/>
