@@ -50,7 +50,6 @@ function TransactionDrawer(data: TransactionDrawerData) {
 		};
 
 		setLoading(true);
-		await new Promise((resolve, _) => setTimeout(resolve, 2000));
 		const saved = await save(index, newTransaction);
 		if (saved) {
 			setLoading(false);
@@ -107,7 +106,7 @@ function TransactionDrawer(data: TransactionDrawerData) {
 			<DrawerContent>
 				{loading &&
 					<div className="absolute bg-[rgba(0,0,0,75%)] h-full w-full">
-						<LoaderIcon className="absolute animate-spin left-[50%] top-50" />
+						<LoaderIcon className="absolute animate-spin left-[50%] text-white top-50" />
 					</div>
 				}
 				<div className="mx-auto max-w-sm w-full">

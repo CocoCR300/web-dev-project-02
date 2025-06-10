@@ -11,7 +11,7 @@ export async function transactions(user_id: number, limit?: number, offset?: num
 {
 	const query = transactionsTable()
 		.orderBy("date", "desc")
-		.innerJoin("category", "transaction.category_id", "category.id")
+		.leftJoin("category", "transaction.category_id", "category.id")
 		.select([
 			"transaction.id",
 			"amount",
@@ -40,10 +40,9 @@ export async function transactions(user_id: number, limit?: number, offset?: num
 	return query;
 }
 
-export async function createTransaction(user_id: number, amount: number, date: Date, category_id: number, description: string): Promise<Transaction>
+export async function createTransaction(user_id: number, amount: number, date: Date,  description: string, category_id: number | null): Promise<Transaction>
 {
 	const rows = await transactionsTable().insert({ amount, date, category_id, description, user_id }, ["id"]);
-	const categories: any[] = await databaseConnection.table("category").where({ id: category_id }).select(["name"]);
 
 	const newTransaction: Transaction = {
 		id: rows[0].id,
@@ -51,12 +50,18 @@ export async function createTransaction(user_id: number, amount: number, date: D
 		date,
 		description,
 		user_id,
-		category: {
+		category: null
+	};
+
+	if (category_id) {
+		const categories: any[] = await databaseConnection.table("category").where({ id: category_id }).select(["name"]);
+
+		newTransaction.category = {
 			id: category_id,
 			name: categories[0].name,
 			user_id: user_id
-		}
-	};
+		};
+	}
 
 	return newTransaction;
 }
@@ -74,10 +79,13 @@ export async function updateTransaction(user_id: number, id: number, amount?: nu
 		return null;
 	}
 
-	const categories: any[] = await databaseConnection.table("category").where({ id: category_id }).select(["*"]);
-	const category: Category = categories[0];
-
 	const updatedTransaction: Transaction = rows[0];
-	updatedTransaction.category = category;
+
+	if (category_id) {
+		const categories: any[] = await databaseConnection.table("category").where({ id: category_id }).select(["*"]);
+		const category: Category = categories[0];
+
+		updatedTransaction.category = category;
+	}
 	return updatedTransaction;
 }

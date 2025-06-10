@@ -120,7 +120,7 @@ export const resolvers = {
 			const user_id = token.sub;
 
 			try {
-				const newTransaction = await createTransaction(user_id, amount, date, category_id, description);
+				const newTransaction = await createTransaction(user_id, amount, date, description, category_id);
 				return newTransaction;
 			}
 			catch (err) {

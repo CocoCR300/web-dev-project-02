@@ -31,7 +31,7 @@ await schema.createTable("transaction", (table) => {
     table.text("description").notNullable();
     table.float("amount").notNullable();
     table.date("date").notNullable();
-    table.integer("category_id");
+    table.integer("category_id").nullable();
     table.integer("user_id").notNullable();
 
     table.foreign("user_id").references("user.id");

@@ -36,7 +36,7 @@ input UpdateUserInput {
 
 input CreateTransactionInput {
     amount: Float!
-    category_id: ID!
+    category_id: ID
     date: String!
     description: String!
 }

@@ -1,6 +1,6 @@
 import PouchDB from "pouchdb";
 import { create, get, remove, update } from "../database";
-import type { Transaction } from "../typedef";
+import { DEFAULT_CATEGORY, type Transaction } from "../typedef";
 
 const API_URL = "http://localhost:4000/graphql";
 const DATABASE = new PouchDB("transactions");
@@ -55,6 +55,10 @@ export async function transactions(searchFilter: string, offset: number, limit: 
 
 	for (const transaction of transactions) {
 		transaction.date = new Date((transaction.date as any) as string);
+
+		if (transaction.category == null) {
+			transaction.category = DEFAULT_CATEGORY;
+		}
 	}
 
 	return transactions;
@@ -80,7 +84,7 @@ export async function saveTransaction(transaction: Transaction): Promise<Transac
 	const variables: any =  {
 		input: {
 			amount: transaction.amount,
-			category_id: transaction.category_id,
+			category_id: transaction.category_id == 0 ? null : transaction.category_id,
 			date: transaction.date,
 			description: transaction.description
 		}
@@ -98,7 +102,13 @@ export async function saveTransaction(transaction: Transaction): Promise<Transac
 		});
 
 		const payload = await response.json();
-		const newTransaction = payload.data.createTransaction;
+		let newTransaction: any;
+		if (transaction._id == null) {
+			newTransaction = payload.data.createTransaction;
+		}
+		else {
+			newTransaction = payload.data.updateTransaction;
+		}
 
 		if (transaction._id != null) {
 			await update(DATABASE, newTransaction.id, newTransaction);
@@ -109,6 +119,10 @@ export async function saveTransaction(transaction: Transaction): Promise<Transac
 		}
 
 		newTransaction.date = new Date(newTransaction.date);
+		if (transaction.category == null) {
+			transaction.category = DEFAULT_CATEGORY;
+		}
+
 		return newTransaction;
 	} 
 	catch (err) {
