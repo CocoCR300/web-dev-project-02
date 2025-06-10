@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import TransactionCard from "../components/transaction-card";
 import { type Transaction, type Category, DEFAULT_CATEGORY } from "../typedef";
 import ListView from "../components/list-view";
-import { category as fetchCategories, saveCategory } from "../services/Categories";
+import { category as fetchCategories } from "../services/Categories";
 import { deleteTransaction, saveTransaction, transactions } from "../services/finances";
 import { Button } from "../components/ui/button";
 import { ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
@@ -35,7 +35,7 @@ function TransactionDrawer(data: TransactionDrawerData) {
 
 	const [amount, setAmount] = useState<number>(0);
 	const [categoryList, setCategoryList] = useState<Category[]>([]);
-	const [categoryId, setCategoryId] = useState<string>(DEFAULT_CATEGORY._id!);
+	const [categoryId, setCategoryId] = useState<number>(DEFAULT_CATEGORY.id);
 	const [date, setDate] = useState<Date>(new Date());
 	const [description, setDescription] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
@@ -46,7 +46,7 @@ function TransactionDrawer(data: TransactionDrawerData) {
 
 	async function saveTransaction() {
 		const newTransaction: Transaction = {
-			_id: transactionId, amount, categoryId, description, date
+			_id: transactionId, amount, category_id: categoryId, description, date, category: null
 		};
 
 		setLoading(true);
@@ -69,7 +69,7 @@ function TransactionDrawer(data: TransactionDrawerData) {
 	}
 
 	async function getCategories() {
-		const categories = await fetchCategories("", 0, 100);
+		const categories = await fetchCategories();
 		setCategoryList(categories);
 	}
 
@@ -87,12 +87,12 @@ function TransactionDrawer(data: TransactionDrawerData) {
 		if (transaction) {
 			setAmount(transaction.amount);
 			setDescription(transaction.description);
-			setCategoryId(transaction.categoryId);
+			setCategoryId(transaction.category?.id ?? DEFAULT_CATEGORY.id);
 		}
 		else {
 			setAmount(0);
 			setDescription("");
-			setCategoryId(DEFAULT_CATEGORY._id!)
+			setCategoryId(DEFAULT_CATEGORY.id)
 		}
 	}, [open, transaction]);
 
@@ -182,17 +182,17 @@ function TransactionDrawer(data: TransactionDrawerData) {
 						<div className="grid gap-3">
 							<Label htmlFor="category">Categoría</Label>
 							<Select
-								defaultValue={ DEFAULT_CATEGORY._id! }
-								value={ categoryId }
-								onValueChange={ value => setCategoryId(value) }>
+								defaultValue={ DEFAULT_CATEGORY.id.toString() }
+								value={ categoryId?.toString() }
+								onValueChange={ value => setCategoryId(parseInt(value)) }>
 								<SelectTrigger className="w-full">
 									<SelectValue id="category" placeholder="Seleccione una categoría" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value={ DEFAULT_CATEGORY._id! }>{ DEFAULT_CATEGORY.name }</SelectItem>
+									<SelectItem value={ DEFAULT_CATEGORY.id.toString() }>{ DEFAULT_CATEGORY.name }</SelectItem>
 									{
 										categoryList.map(cat => (
-											<SelectItem value={cat._id!}>
+											<SelectItem value={ cat.id.toString() }>
 												{cat.name}
 											</SelectItem>
 										))
@@ -217,7 +217,7 @@ function TransactionDrawer(data: TransactionDrawerData) {
 
 export default function FinancesPage() {
 	const [drawerOpen, setDrawerOpen] = useState(false);
-	const [categories, setCategories] = useState<Map<string, Category>>(new Map());
+	const [categories, setCategories] = useState<Map<number, Category>>(new Map());
 	const [items, setItems] = useState<Transaction[]>([]);
 	const [selectedTransactionIndex, selectTransactionIndex] = useState<number | null>(null);
 
@@ -226,12 +226,12 @@ export default function FinancesPage() {
 	}, []);
 
 	async function load() {
-		const categories = await fetchCategories("", 0, 100);
+		const categories = await fetchCategories();
 		const items = await transactions("", 0, 100);
 
-		const categoriesMap = new Map<string, Category>();
+		const categoriesMap = new Map<number, Category>();
 		for (const category of categories) {
-			categoriesMap.set(category._id!, category);
+			categoriesMap.set(category.id, category);
 		}
 
 		setCategories(categoriesMap);
@@ -251,20 +251,25 @@ export default function FinancesPage() {
 	}
 
 	async function saveItem(index: number | null, newTransaction: Transaction): Promise<boolean> {
-		const success = await saveTransaction(newTransaction);
+		const createdTransaction = await saveTransaction(newTransaction);
+		if (createdTransaction == null) {
+			window.alert("Ha ocurrido un error al crear la transacción");
+			return false;
+		}
+
 		let newItems;
 		if (index != null) {
-			newItems = [...items.slice(0, index), newTransaction, ...items.slice(index + 1)];
+			newItems = [...items.slice(0, index), createdTransaction, ...items.slice(index + 1)];
 		}
 		else {
-			newItems = [...items, newTransaction];
+			newItems = [...items, createdTransaction];
 		}
 
 		newItems.sort((t0, t1) => t1.date.getTime() - t0.date.getTime());
 
 		setItems(newItems);
 
-		return success;
+		return true;
 	}
 
 	function cardClicked(index: number) {
@@ -286,8 +291,7 @@ export default function FinancesPage() {
 			<ListView
 				items={items}
 				itemTemplate={(index, item) => {
-					const category: Category = categories.get(item.categoryId) ?? DEFAULT_CATEGORY;
-					return <TransactionCard category={ category } onClick={() => cardClicked(index)} transaction={item} />
+					return <TransactionCard onClick={() => cardClicked(index)} transaction={item} />
 				}
 				}>
 			</ListView>

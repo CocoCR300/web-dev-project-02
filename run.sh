@@ -1,4 +1,4 @@
 #!/bin/sh
 
-parallel -j0 --lb --ctag ::: 'npm --prefix api run dev' 'npm --prefix pwa run dev'
+parallel -j0 --lb --ctag 'npm --prefix' ::: api pwa ::: run ::: dev
 

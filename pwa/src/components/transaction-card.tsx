@@ -4,7 +4,6 @@ import { Card } from "./ui/card";
 
 export interface TransactionCardData
 {
-	category: Category;
 	onClick?: () => void;
 	transaction: Transaction;
 }
@@ -20,7 +19,12 @@ const DATE_TIME_FORMAT = new Intl.DateTimeFormat(undefined, {
 // Need 
 export default function TransactionCard(data: TransactionCardData)
 {
-	const { category, onClick, transaction } = data;
+	const { onClick, transaction } = data;
+	
+	let category = transaction.category;
+	if (category == null) {
+		category = DEFAULT_CATEGORY;
+	}
 
 	return (
 		<Card className="p-3 gap-4" onClick={ onClick }>

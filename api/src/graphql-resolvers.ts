@@ -6,7 +6,7 @@ import { Transaction } from "./model/transaction";
 import { PubSub } from "graphql-subscriptions";
 import { ApolloServerContext, IdResult } from "./typedef";
 import { createTransaction, deleteTransaction, transactions, updateTransaction } from "./service/transaction";
-import { createCategory, deleteCategory, updateCategory } from "./service/category";
+import { categories, createCategory, deleteCategory, updateCategory } from "./service/category";
 
 // SQLite error codes:
 //	SQLITE_CONSTRAINT_FOREIGNKEY
@@ -58,6 +58,17 @@ export const resolvers = {
 					name: item.category_name
 				};
 			}
+
+			return items;
+		},
+		categories: async (_, args, context: ApolloServerContext): Promise<Category[]> => {
+			const { token } = context;
+			if (!token) {
+				throw new GraphQLError("Not authenticated", { extensions: { code: "UNATHENTICATED" } });
+			}
+
+			const id = token.sub;
+			const items = await categories(id);
 
 			return items;
 		}

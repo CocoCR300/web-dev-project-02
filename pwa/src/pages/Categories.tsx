@@ -5,10 +5,7 @@ import { transactions, deleteTransaction } from "../services/finances";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { XIcon } from "lucide-react";
-import { Virtuoso, VirtuosoGrid, type GridComponents } from "react-virtuoso";
-
-const VIRTUOSO_GRID_COMPONENTS: GridComponents = {
-};
+import { VirtuosoGrid } from "react-virtuoso";
 
 export default function CategoriesPage() {
 	const [categoryList, setCategoryList] = useState<Category[]>([]);
@@ -25,7 +22,7 @@ export default function CategoriesPage() {
 	}, [selectedCategory]);
 
 	async function loadCategories() {
-		let categories = await category("", 0, 100);
+		let categories = await category();
 		categories.push(DEFAULT_CATEGORY);
 		categories.sort((c0, c1) => c0.name.localeCompare(c1.name));
 		setCategoryList(categories);
@@ -36,7 +33,7 @@ export default function CategoriesPage() {
 		let filtered: Transaction[] = [];
 		if (selectedCategory) {
 			filtered = all
-				.filter(t => t.categoryId == selectedCategory._id)
+				.filter(t => t.category!._id == selectedCategory._id)
 				.sort((a, b) => b.date.getTime() - a.date.getTime());
 		}
 		setTransactionList(filtered);
@@ -47,19 +44,19 @@ export default function CategoriesPage() {
 			return;
 		}
 
-		await saveCategory({ name: categoryName.trim() });
+		await saveCategory({ _id: null, name: categoryName.trim() });
 		setCategoryName("");
 		loadCategories();
 	}
 
-	async function handleDeleteCategory(id: string) {
+	async function handleDeleteCategory(id: number) {
 		const cat = categoryList.find(c => c._id === id);
 		if (!cat) {
 			return;
 		}
 
 		const all = await transactions("", 0, 100);
-		const related = all.filter(t => t.categoryId == cat._id!);
+		const related = all.filter(t => t.category!._id == cat._id!);
 
 		if (related.length > 0) {
 			const confirmDelete = confirm(
@@ -154,7 +151,8 @@ export default function CategoriesPage() {
 							onClick={() => setSelectedCategory(category)}>
 							{category.name}
 						</Button>
-						{category._id !== "no-category" && (
+						{
+							category._id != DEFAULT_CATEGORY._id && (
 							<Button
 								variant="destructive"
 								size="icon"

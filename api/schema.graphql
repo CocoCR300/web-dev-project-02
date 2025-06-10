@@ -65,11 +65,11 @@ type Mutation {
 
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(input: UpdateTransactionInput!): Transaction
-    deleteTransaction: IdResult
+    deleteTransaction(id: ID!): IdResult
 
     createCategory(input: CreateCategoryInput!): Category!
     updateCategory(input: UpdateCategoryInput!): Category
-    deleteCategory: IdResult
+    deleteCategory(id: ID!): IdResult
 }
 
 type Query {

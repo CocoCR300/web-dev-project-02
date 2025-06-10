@@ -2,7 +2,9 @@ import PouchDB from "pouchdb";
 import { create, get, remove, update } from "../database";
 import type { Transaction } from "../typedef";
 
+const API_URL = "http://localhost:4000/graphql";
 const DATABASE = new PouchDB("transactions");
+const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDk1MDYxODA1MjcsImlzcyI6Imh0dHBzOi8vdW5hLmFjLmNyIiwibmFtZSI6ImpvaG5kb2UiLCJzdWIiOjF9.XRL0ZywhaWUCnz1sxPBF1ZnET8gpci5coRIwF439Mfo";
 
 // Delete database, uncomment when needed
 //DATABASE.destroy();
@@ -11,8 +13,8 @@ if (items.length == 0) {
 	const date = new Date();
 	date.setFullYear(2000);
 
-	saveTransaction({ _id: "", amount: -100, categoryId: "", date: new Date(), description: "Went to the mall again!" });
-	saveTransaction({ _id: "", amount: 1000, categoryId: "", date, description: "Another day of hard work" });
+	//saveTransaction({ _id: "", amount: -100, category_id: "", date: new Date(), description: "Went to the mall again!" });
+	//saveTransaction({ _id: "", amount: 1000, category_id: "", date, description: "Another day of hard work" });
 }
 
 DATABASE.createIndex({
@@ -21,7 +23,36 @@ DATABASE.createIndex({
 
 export async function transactions(searchFilter: string, offset: number, limit: number): Promise<Transaction[]>
 {
-	const transactions = await get(DATABASE, "date", searchFilter, offset, limit);
+	let transactions: Transaction[] = [];
+	const query = `#graphql
+		query transactions {
+			transactions(offset: ${offset}, limit: ${limit}, search_filter: "${searchFilter}") {
+				id
+				amount
+				date
+				description
+				category {
+					id
+					name
+				}
+			}
+		}
+	`;
+
+	try {
+		const response = await fetch(API_URL, {
+			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+			method: "POST",
+			body: JSON.stringify({ operationName: "transactions", query })
+		});
+		const payload = await response.json();
+		transactions = payload.data.transactions;
+	} 
+	catch (err) {
+		console.error(err);
+		transactions = await get(DATABASE, "date", searchFilter, offset, limit);
+	}
+
 	for (const transaction of transactions) {
 		transaction.date = new Date((transaction.date as any) as string);
 	}
@@ -29,22 +60,91 @@ export async function transactions(searchFilter: string, offset: number, limit: 
 	return transactions;
 }
 
-export async function saveTransaction(transaction: Transaction): Promise<boolean>
+export async function saveTransaction(transaction: Transaction): Promise<Transaction | null>
 {
-	if (transaction._id) {
-		return update(DATABASE, transaction._id, transaction);
+	const query = `#graphql
+		mutation transactions($input: ${transaction._id == null ? "Create" : "Update" }TransactionInput!) {
+			${ transaction._id == null ? "create" : "update" }Transaction(input: $input) {
+				id
+				amount
+				date
+				description
+				category {
+					id
+					name
+				}
+			}
+		}
+	`;
+
+	const variables: any =  {
+		input: {
+			amount: transaction.amount,
+			category_id: transaction.category_id,
+			date: transaction.date,
+			description: transaction.description
+		}
+	};
+
+	if (transaction._id != null) {
+		variables.input._id = transaction._id;
 	}
-	else {
-		const id = await create(DATABASE, transaction);
-		if (id) {
-			transaction._id = id;
+
+	try {
+		const response = await fetch(API_URL, {
+			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+			method: "POST",
+			body: JSON.stringify({ operationName: "transactions", query: `${query}`, variables })
+		});
+
+		const payload = await response.json();
+		const newTransaction = payload.data.createTransaction;
+
+		if (transaction._id != null) {
+			await update(DATABASE, newTransaction.id, newTransaction);
+		}
+		else {
+			await create(DATABASE, newTransaction);
+			newTransaction._id = newTransaction.id;
 		}
 
-		return id != "";
+		newTransaction.date = new Date(newTransaction.date);
+		return newTransaction;
+	} 
+	catch (err) {
+		console.error(err);
+		return null;
 	}
 }
 
-export async function deleteTransaction(id: string): Promise<boolean>
+export async function deleteTransaction(id: number): Promise<boolean>
 {
-	return await remove(DATABASE, id);
+	const query = `#graphql
+		query transactions {
+			deleteTransaction(id: ${id}) {
+				id
+			}
+		}
+	`;
+
+	try {
+		const response = await fetch(API_URL, {
+			headers: { "Content-Type": "application/json" },
+			method: "POST",
+			body: JSON.stringify({ operationName: "transactions", query })
+		});
+
+		const payload = await response.json();
+		const deletedId = payload.data.deleteTransaction;
+
+		if (deletedId) {
+			await remove(DATABASE, deletedId);
+		}
+
+		return true;
+	} 
+	catch (err) {
+		console.error(err);
+		return false;
+	}
 }

@@ -66,6 +66,7 @@ const webSocketServer = new WebSocketServer({
 });
 const serverCleanup = useServer({ context: getWebSocketContext, schema: graphSchema }, webSocketServer);
 const apolloServer = new ApolloServer<ApolloServerContext>({
+	csrfPrevention: false,
 	schema: graphSchema,
 	plugins: [
 		ApolloServerPluginDrainHttpServer({ httpServer }),
