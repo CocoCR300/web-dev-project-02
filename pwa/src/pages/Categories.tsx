@@ -143,7 +143,7 @@ export default function CategoriesPage() {
 			<div className="flex-1">
 				{ transactionsView }
 			</div>
-			<div className="flex flex-wrap gap-3 max-h-[6em] overflow-scroll">
+			<div className="flex flex-wrap gap-3 max-h-[6em] overflow-y-scroll">
 				{categoryList.map(category => (
 					<div key={category._id} className="flex items-center gap-1">
 					<Badge className="flex gap-2 p-0 rounded-full" variant="secondary">

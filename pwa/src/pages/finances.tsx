@@ -183,28 +183,26 @@ function TransactionDrawer(data: TransactionDrawerData) {
 								</Popover>
 								<Input
 									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-									defaultValue={ TIME_FORMAT.format(new Date()) }
 									id="time"
 									step="1"
 									type="time"
-									value={ TIME_FORMAT.format(time) }
-									onChange={ event => setTime(event.target.valueAsDate!) }/>
+									value={TIME_FORMAT.format(time)}
+									onChange={event => setTime(event.target.valueAsDate!)} />
 							</div>
 						</div>
 						<div className="grid gap-3">
 							<Label htmlFor="category">Categoría</Label>
 							<Select
-								defaultValue={ DEFAULT_CATEGORY.id.toString() }
-								value={ categoryId?.toString() }
-								onValueChange={ value => setCategoryId(parseInt(value)) }>
+								value={categoryId.toString()}
+								onValueChange={value => setCategoryId(parseInt(value))}>
 								<SelectTrigger className="w-full">
 									<SelectValue id="category" placeholder="Seleccione una categoría" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value={ DEFAULT_CATEGORY.id.toString() }>{ DEFAULT_CATEGORY.name }</SelectItem>
+									<SelectItem value={DEFAULT_CATEGORY.id.toString()}>{DEFAULT_CATEGORY.name}</SelectItem>
 									{
 										categoryList.map(cat => (
-											<SelectItem value={ cat.id.toString() }>
+											<SelectItem key={ cat.id } value={cat.id.toString()}>
 												{cat.name}
 											</SelectItem>
 										))
