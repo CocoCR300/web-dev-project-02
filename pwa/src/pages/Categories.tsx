@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { type Transaction, type Category, DEFAULT_CATEGORY } from "../typedef";
-import { category, saveCategory, deleteCategory } from "../services/Categories";
+import { categories, saveCategory, deleteCategory } from "../services/Categories";
 import { transactions, deleteTransaction } from "../services/finances";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -22,10 +22,10 @@ export default function CategoriesPage() {
 	}, [selectedCategory]);
 
 	async function loadCategories() {
-		let categories = await category();
-		categories.push(DEFAULT_CATEGORY);
-		categories.sort((c0, c1) => c0.name.localeCompare(c1.name));
-		setCategoryList(categories);
+		let items = await categories();
+		items.push(DEFAULT_CATEGORY);
+		items.sort((c0, c1) => c0.name.localeCompare(c1.name));
+		setCategoryList(items);
 	}
 
 	async function loadTransactions() {
@@ -33,7 +33,7 @@ export default function CategoriesPage() {
 		let filtered: Transaction[] = [];
 		if (selectedCategory) {
 			filtered = all
-				.filter(t => t.category!._id == selectedCategory._id)
+				.filter(t => t.category!.id == selectedCategory.id)
 				.sort((a, b) => b.date.getTime() - a.date.getTime());
 		}
 		setTransactionList(filtered);
@@ -44,7 +44,7 @@ export default function CategoriesPage() {
 			return;
 		}
 
-		await saveCategory({ _id: null, name: categoryName.trim() });
+		await saveCategory({ _id: null, id: -1, name: categoryName.trim() });
 		setCategoryName("");
 		loadCategories();
 	}
@@ -103,7 +103,7 @@ export default function CategoriesPage() {
 							<div
 								key={ transaction._id }
 								className="bg-gray border rounded-xl shadow-sm p-4 space-y-1">
-								<h3 className="font-medium text-lg">{transaction.description}</h3>
+								<h3 className="font-medium overflow-hidden text-lg text-ellipsis">{transaction.description}</h3>
 								<p className="text-muted-foreground text-sm">
 									Monto: <span className="font-semibold">${transaction.amount}</span>
 								</p>

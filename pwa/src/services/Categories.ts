@@ -10,7 +10,7 @@ DATABASE.createIndex({
 	index: { fields: ["name"] }
 })
 
-export async function category(): Promise<Category[]>
+export async function categories(): Promise<Category[]>
 {
 	const query = `#graphql
 		query categories {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import TransactionCard from "../components/transaction-card";
 import { type Transaction, type Category, DEFAULT_CATEGORY } from "../typedef";
 import ListView from "../components/list-view";
-import { category as fetchCategories } from "../services/Categories";
+import { categories as fetchCategories } from "../services/Categories";
 import { deleteTransaction, saveTransaction, transactions } from "../services/finances";
 import { Button } from "../components/ui/button";
 import { ChevronDownIcon, LoaderIcon, MinusIcon, PlusIcon } from "lucide-react";
