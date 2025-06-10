@@ -99,5 +99,29 @@ export async function saveCategory(category: Category): Promise<Category | null>
 	return createdCategory;
 }
 export async function deleteCategory(id: number): Promise<boolean> {
-	return await remove(DATABASE, id)
+	const query = `#graphql
+		mutation categories {
+			deleteCategory(id: ${id}) {
+				id
+			}
+		}
+	`;
+
+	try {
+		const response = await fetch(API_URL, {
+			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+			method: "POST",
+			body: JSON.stringify({ operationName: "categories", query })
+		});
+
+		const payload = await response.json();
+		return payload.data.deleteCategory != undefined;
+	} 
+	catch (err) {
+		console.error(err);
+		return false;
+	}
+
+	await remove(DATABASE, id);
+	return true;
 }

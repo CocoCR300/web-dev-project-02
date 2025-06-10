@@ -27,7 +27,8 @@ export async function get(database: PouchDB.Database, sortBy: string, id?: numbe
 export async function create(database: PouchDB.Database, item: any): Promise<string>
 {
 	try {
-		const result = await database.post<any>(item);
+		item._id = item.id;
+		const result = await database.put<any>(item);
 		if (result.ok) {
 			return result.id;
 		}

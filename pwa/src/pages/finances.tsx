@@ -26,7 +26,8 @@ interface TransactionDrawerData {
 const TIME_FORMAT = new Intl.DateTimeFormat(undefined, {
 	hour: "2-digit",
 	hour12: false,
-	minute: "2-digit"
+	minute: "2-digit",
+	timeZone: "UTC"
 });
 
 function TransactionDrawer(data: TransactionDrawerData) {
@@ -37,6 +38,7 @@ function TransactionDrawer(data: TransactionDrawerData) {
 	const [categoryList, setCategoryList] = useState<Category[]>([]);
 	const [categoryId, setCategoryId] = useState<number>(DEFAULT_CATEGORY.id);
 	const [date, setDate] = useState<Date>(new Date());
+	const [time, setTime] = useState<number>(Date.now());
 	const [description, setDescription] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 
@@ -45,8 +47,11 @@ function TransactionDrawer(data: TransactionDrawerData) {
 	}
 
 	async function saveTransaction() {
+		const dateTime = new Date(date);
+		dateTime.setTime(time);
+
 		const newTransaction: Transaction = {
-			_id: transactionId, amount, category_id: categoryId, description, date, category: null
+			_id: transactionId, amount, category_id: categoryId, description, date: dateTime, category: null
 		};
 
 		setLoading(true);
@@ -85,11 +90,15 @@ function TransactionDrawer(data: TransactionDrawerData) {
 
 		if (transaction) {
 			setAmount(transaction.amount);
+			setDate(transaction.date);
+			setTime(transaction.date.getTime());
 			setDescription(transaction.description);
 			setCategoryId(transaction.category?.id ?? DEFAULT_CATEGORY.id);
 		}
 		else {
 			setAmount(0);
+			setDate(new Date());
+			setTime(Date.now());
 			setDescription("");
 			setCategoryId(DEFAULT_CATEGORY.id)
 		}
@@ -172,10 +181,12 @@ function TransactionDrawer(data: TransactionDrawerData) {
 								</Popover>
 								<Input
 									className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-									defaultValue={TIME_FORMAT.format(new Date())}
+									defaultValue={ TIME_FORMAT.format(new Date()) }
 									id="time"
 									step="1"
-									type="time" />
+									type="time"
+									value={ TIME_FORMAT.format(time) }
+									onChange={ event => setTime(event.target.valueAsNumber) }/>
 							</div>
 						</div>
 						<div className="grid gap-3">
