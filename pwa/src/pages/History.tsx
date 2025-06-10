@@ -53,7 +53,7 @@ export default function HistoryPage() {
                         </div>
                     </div>
 
-                    <div className="md:ml-3 w-full md:w-1/2 mt-5 md:mt-0">
+                    <div className="md:ml-3 w-full md:w-1/2 mt-5 md:my-auto">
                         {selectedMonth && transactionData[selectedMonth] ? (
                             <div className="bg-gray-800 p-6 rounded-lg shadow">
                                 <h2 className="text-xl font-bold text-gray-200 mb-4 text-center">
