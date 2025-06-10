@@ -33,12 +33,13 @@ const TIME_FORMAT = new Intl.DateTimeFormat(undefined, {
 function TransactionDrawer(data: TransactionDrawerData) {
 	const { index, open, remove, save, setOpen, transaction } = data;
 	const transactionId = transaction?._id || null;
+	const defaultDate = new Date();
 
 	const [amount, setAmount] = useState<number>(0);
 	const [categoryList, setCategoryList] = useState<Category[]>([]);
 	const [categoryId, setCategoryId] = useState<number>(DEFAULT_CATEGORY.id);
-	const [date, setDate] = useState<Date>(new Date());
-	const [time, setTime] = useState<number>(Date.now());
+	const [date, setDate] = useState<Date>(defaultDate);
+	const [time, setTime] = useState<Date>(defaultDate);
 	const [description, setDescription] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 
@@ -48,7 +49,7 @@ function TransactionDrawer(data: TransactionDrawerData) {
 
 	async function saveTransaction() {
 		const dateTime = new Date(date);
-		dateTime.setTime(time);
+		dateTime.setHours(time.getHours(), time.getMinutes());
 
 		const newTransaction: Transaction = {
 			_id: transactionId, amount, category_id: categoryId, description, date: dateTime, category: null
@@ -91,14 +92,15 @@ function TransactionDrawer(data: TransactionDrawerData) {
 		if (transaction) {
 			setAmount(transaction.amount);
 			setDate(transaction.date);
-			setTime(transaction.date.getTime());
+			setTime(transaction.date);
 			setDescription(transaction.description);
 			setCategoryId(transaction.category?.id ?? DEFAULT_CATEGORY.id);
 		}
 		else {
+			const date = new Date();
 			setAmount(0);
-			setDate(new Date());
-			setTime(Date.now());
+			setDate(date);
+			setTime(date);
 			setDescription("");
 			setCategoryId(DEFAULT_CATEGORY.id)
 		}
@@ -186,7 +188,7 @@ function TransactionDrawer(data: TransactionDrawerData) {
 									step="1"
 									type="time"
 									value={ TIME_FORMAT.format(time) }
-									onChange={ event => setTime(event.target.valueAsNumber) }/>
+									onChange={ event => setTime(event.target.valueAsDate!) }/>
 							</div>
 						</div>
 						<div className="grid gap-3">

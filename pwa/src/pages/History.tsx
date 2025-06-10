@@ -40,6 +40,7 @@ export default function HistoryPage() {
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {
 								months.map((month) => {
+									const anyTransactions = transactionData[month].some(w => w.amount != 0);
 									const total = transactionData[month].map(w => w.amount).reduce((a0, a1, i, arr) => a0 + a1, 0);
 									return (
 										<div
@@ -48,7 +49,7 @@ export default function HistoryPage() {
 											className="p-6 bg-gray-800 rounded-lg shadow hover:bg-gray-700 cursor-pointer text-center text-lg font-medium text-gray-300">
 											<span>{month}</span>
 											<p className="text-sm text-gray-400 mt-2">
-												{total > 0 ? `$${total} en transacciones` : "Sin transacciones"}
+												{anyTransactions ? `$${total} en transacciones` : "Sin transacciones"}
 											</p>
 										</div>
 									);
