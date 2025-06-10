@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { BanknoteIcon, LineChartIcon, TagIcon } from "lucide-react";
 import FinancesPage from "./finances";
 import CategoriesPage from "./Categories";
@@ -12,7 +12,6 @@ const tabItems = [
 ];
 
 export default function MainLayout() {
-	const [activeTab, setActiveTab] = useState("finances");
 
 	return (
 		<Tabs className="column flex h-full w-full" defaultValue="finances" style={{ flexFlow: "column", padding: "1em" }}>
