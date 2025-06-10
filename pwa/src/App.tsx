@@ -28,39 +28,6 @@ function AppRoutes() {
 
 
 function App() {
-<<<<<<< Updated upstream
-	
-	const [activeTab, setActiveTab] = useState('finances')
-	
-	return (
-		<ThemeProvider>
-			<Tabs className="column flex h-full w-full" defaultValue={ tabItems[0].key } style={{
-				flexFlow: "column",
-				padding: "1em"
-			}}>
-				<div className="flex-1 mb-[1em]">
-					{
-						tabItems.map(item => (
-							<TabsContent key={ item.key } value={item.key} style={{ height: "100%" }}>
-								{ item.content }
-							</TabsContent>
-						))
-					}
-				</div>
-				<TabsList className="flex gap-x-[1em] self-center min-h-[4em]">
-					{
-						tabItems.map(item => (
-							<TabsTrigger className="flex flex-col" key={ item.key } value={item.key}>
-								{ item.icon }
-								{ item.title }
-							</TabsTrigger>
-						))
-					}
-				</TabsList>
-			</Tabs>
-		</ThemeProvider>
-	)
-=======
   return (
     <ThemeProvider>
       <AuthProvider>
@@ -70,7 +37,6 @@ function App() {
       </AuthProvider>
     </ThemeProvider>
   );
->>>>>>> Stashed changes
 }
 
 export default App;
