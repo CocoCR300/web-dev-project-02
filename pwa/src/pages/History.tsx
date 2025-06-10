@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { getTransactionsByMonth } from "../services/History";
 
 
@@ -35,9 +35,9 @@ export default function HistoryPage() {
             <h1 className="text-2xl font-bold mb-4 text-center text-gray-200">
                 Historial de Transacciones
             </h1>
-            <div className="p-4 flex">
-                    <div className="w-1/2">
-                        <div className="grid grid-cols-3 gap-4">
+            <div className="p-4 flex flex-col md:flex-row">
+                    <div className="w-full md:w-1/2">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {months.map((month) => (
                                 <div
                                     key={month}
@@ -53,35 +53,36 @@ export default function HistoryPage() {
                         </div>
                     </div>
 
-                    <div className="mt-5 w-1/2 p-4">
+                    <div className="md:ml-3 w-full md:w-1/2 mt-5 md:mt-0">
                         {selectedMonth && transactionData[selectedMonth] ? (
                             <div className="bg-gray-800 p-6 rounded-lg shadow">
                                 <h2 className="text-xl font-bold text-gray-200 mb-4 text-center">
                                     Transacciones de {selectedMonth}
                                 </h2>
-                                <AreaChart
-                                    width={600}
-                                    height={250}
-                                    data={transactionData[selectedMonth]}
-                                    margin={{ top: 10, right: 30, left: 30, bottom: 0 }}
-                                >
-                                    <defs>
-                                        <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                                            <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="week" tick={{ fill: "#ccc" }} />
-                                    <YAxis tick={{ fill: "#ccc" }} />
-                                    <Tooltip />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="amount"
-                                        stroke="#8884d8"
-                                        fillOpacity={1}
-                                        fill="url(#colorAmount)" />
-                                </AreaChart>
+                                <ResponsiveContainer width="100%" height={250}>
+                                    <AreaChart
+                                        data={transactionData[selectedMonth]}
+                                        margin={{ top: 10, right: 30, left: 30, bottom: 0 }}
+                                    >
+                                        <defs>
+                                            <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="week" tick={{ fill: "#ccc" }} />
+                                        <YAxis tick={{ fill: "#ccc" }} />
+                                        <Tooltip />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="amount"
+                                            stroke="#8884d8"
+                                            fillOpacity={1}
+                                            fill="url(#colorAmount)"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
                             </div>
                         ) : (
                             <div className="bg-gray-800 p-6 rounded-lg shadow text-center text-gray-400">
