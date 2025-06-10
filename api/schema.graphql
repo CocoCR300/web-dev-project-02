@@ -9,7 +9,6 @@ type Transaction {
     amount: Float!
     date: String!
     description: String!
-
     category: Category
 }
 
@@ -62,6 +61,7 @@ type Mutation {
     createUser(input: CreateUserInput!): User!
     updateSelf(input: UpdateUserInput!): User
     deleteSelf: IdResult
+    
 
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(input: UpdateTransactionInput!): Transaction

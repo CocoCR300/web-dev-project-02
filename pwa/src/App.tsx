@@ -1,35 +1,34 @@
-import { useState } from 'react';
-import { BanknoteIcon, LineChartIcon,  TagIcon } from 'lucide-react'
-import { ThemeProvider } from './theme-provider';
-import FinancesPage from './pages/finances';
-import CategoriesPage from './pages/Categories';
-import HistoryPage from './pages/History';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import MainLayout from "./pages/MainLayout"; 
+import { ThemeProvider } from "./theme-provider";
+import "./App.css";
+import { AuthProvider, useAuth } from "./services/AuthContext";
 
+function AppRoutes() {
+	const { isAuthenticated, loading } = useAuth();
 
-const tabItems = [
-	{
-		content: <FinancesPage/>,
-		key: "finances",
-		title: "Transacciones",
-		icon: <BanknoteIcon/>,
-	},
-	{
-		content: <CategoriesPage/>,
-		key: "categories",
-		title: "Categorías",
-		icon: <TagIcon/>,
-	},
-	{
-		content: <HistoryPage/>,
-		key: "history",
-		title: "Historial",
-		icon: <LineChartIcon/>,
-	},
-];
+	if (loading) {
+		return <div>Cargando...</div>;
+	}
+
+	return (
+		<Routes>
+			<Route path="/login" element={<Login />} />
+			<Route path="/register" element={<Register />} />
+			<Route
+				path="/"
+				element={isAuthenticated ? <MainLayout /> : <Navigate to="/login" replace />}
+			/>
+			<Route path="*" element={<Navigate to="/" />} />
+		</Routes>
+	);
+}
+
 
 function App() {
+<<<<<<< Updated upstream
 	
 	const [activeTab, setActiveTab] = useState('finances')
 	
@@ -61,6 +60,17 @@ function App() {
 			</Tabs>
 		</ThemeProvider>
 	)
+=======
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+>>>>>>> Stashed changes
 }
 
 export default App;

@@ -39,6 +39,7 @@ export async function transactions(searchFilter: string, offset: number, limit: 
 		}
 	`;
 	
+	
 	try {
 		const response = await fetch(API_URL, {
 			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
@@ -46,13 +47,7 @@ export async function transactions(searchFilter: string, offset: number, limit: 
 			body: JSON.stringify({ operationName: "transactions", query })
 		});
 		const payload = await response.json();
-		console.log("respuesta de la api", payload)
-		if(Array.isArray(payload?.data?.transactions)){
-			transactions = payload.data.transactions;
-		}else{
-			throw new Error("formato de la api invalido")
-		}
-		//transactions = payload.data.transactions;
+		transactions = payload.data.transactions;
 	} 
 	catch (err) {
 		console.error(err);

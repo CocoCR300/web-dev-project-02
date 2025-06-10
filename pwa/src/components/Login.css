@@ -1,68 +1,83 @@
+/* Login.css */
+
 .login-container {
+  height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  min-height: 100vh;
-
-}
-
-.login-box {
-  background-color: #ffffff;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
-
-.login-title {
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  background: linear-gradient(to right, #e0eafc, #cfdef3);
+  padding: 1rem;
 }
 
 .login-form {
+  background-color: #ffffff;
+  padding: 2rem 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
-.form-group label {
-  font-size: 0.9rem;
-  color: #374151;
-  margin-bottom: 0.25rem;
-  display: block;
+.login-form h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.8rem;
 }
 
-.form-group input {
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.input-group .icon {
+  position: absolute;
+  left: 0.8rem;
+  color: #888;
+}
+
+.input-group input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  background-color: white;
-  border-radius: 0.5rem;
-  outline: none;
+  padding: 0.8rem 0.8rem 0.8rem 2.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.6rem;
   font-size: 1rem;
-  color: black;
+  transition: border 0.2s;
 }
 
-.form-group input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+.input-group input:focus {
+  outline: none;
+  border-color: #5a8dee;
+  box-shadow: 0 0 0 2px rgba(90, 141, 238, 0.2);
 }
 
-.login-button {
-  background-color: #3b82f6;
+button[type="submit"] {
+  background-color: #5a8dee;
   color: white;
-  padding: 0.75rem;
   border: none;
-  border-radius: 0.5rem;
-  font-weight: bold;
+  padding: 0.9rem;
+  font-size: 1rem;
+  border-radius: 0.6rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background 0.3s;
 }
 
-.login-button:hover {
-  background-color: #2563eb;
+button[type="submit"]:hover {
+  background-color: #3f6fd1;
+}
+
+button[type="submit"]:disabled {
+  background-color: #a3bdf4;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d9534f;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.95rem;
 }
