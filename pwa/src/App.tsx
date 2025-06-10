@@ -1,4 +1,5 @@
-import { BanknoteIcon, LineChartIcon, Search, Settings, TagIcon } from 'lucide-react'
+import { useState } from 'react';
+import { BanknoteIcon, LineChartIcon,  TagIcon } from 'lucide-react'
 import { ThemeProvider } from './theme-provider';
 import FinancesPage from './pages/finances';
 import CategoriesPage from './pages/Categories';
@@ -29,6 +30,9 @@ const tabItems = [
 ];
 
 function App() {
+	
+	const [activeTab, setActiveTab] = useState('finances')
+	
 	return (
 		<ThemeProvider>
 			<Tabs className="column flex h-full w-full" defaultValue="finances" style={{
