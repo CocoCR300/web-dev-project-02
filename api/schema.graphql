@@ -4,6 +4,20 @@ type User {
     name: String!
 }
 
+type Transaction {
+    id: ID!
+    amount: Float!
+    date: String!
+    description: String!
+
+    category: Category
+}
+
+type Category {
+    id: ID!
+    name: String!
+}
+
 type IdResult {
     id: ID!
 }
@@ -20,28 +34,55 @@ input UpdateUserInput {
     password: String
 }
 
+input CreateTransactionInput {
+    amount: Float!
+    category_id: ID!
+    date: String!
+    description: String!
+}
+
+input UpdateTransactionInput {
+    id: ID!
+    amount: Float
+    category_id: ID
+    date: String
+    description: String
+}
+
+input CreateCategoryInput {
+    name: String!
+}
+
+input UpdateCategoryInput {
+    id: ID!
+    name: String!
+}
+
 type Mutation {
     createUser(input: CreateUserInput!): User!
     updateSelf(input: UpdateUserInput!): User
     deleteSelf: IdResult
+
+    createTransaction(input: CreateTransactionInput!): Transaction!
+    updateTransaction(input: UpdateTransactionInput!): Transaction
+    deleteTransaction: IdResult
+
+    createCategory(input: CreateCategoryInput!): Category!
+    updateCategory(input: UpdateCategoryInput!): Category
+    deleteCategory: IdResult
 }
 
 type Query {
     me: User!
     user(id: ID!): User    
     users(limit: Int): [User!]
+
+    transactions(limit: Int, offset: Int, search_filter: String): [Transaction!]
+
+    categories: [Category!]
 }
 
 # type Subscription {
 #   newTask: Task
 # }
 # 
-# input TaskInput {
-#     name: String!
-#     deadline: String!    
-# }
-# 
-# input TransferTaskInput {
-#     task_id: ID!
-#     user_id: ID!    
-# }

@@ -117,10 +117,6 @@ export default function CategoriesPage() {
 						);
 					}}/>
 			);
-				//<!--<div className="grid gap-4  overflow-scroll">
-				//	{transactionList.map(tx => (
-				//	))}
-				//</div>-->
 		}
 
 		transactionsView = (
