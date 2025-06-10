@@ -1,4 +1,3 @@
-
 html, body {
   height: 100%;
   margin: 0;
@@ -23,6 +22,8 @@ html, body {
 .login-form h2 {
   text-align: center;
   margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: bold;
   color: #ffffff;
 }
 
@@ -57,6 +58,7 @@ html, body {
 button[type="submit"] {
   width: 100%;
   padding: 0.75rem;
+  margin-top: 0.5rem;
   border: none;
   border-radius: 8px;
   background-color: #4f46e5;
@@ -71,9 +73,32 @@ button[type="submit"]:hover {
   background-color: #6366f1;
 }
 
+button[type="submit"]:disabled {
+  background-color: #3e3e8c;
+  cursor: not-allowed;
+}
+
+/* Botón de ir a registro */
+.register-button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #374151;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.register-button:hover {
+  background-color: #4b5563;
+}
+
 .error {
   color: #ff4d4d;
   font-size: 0.9rem;
   text-align: center;
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;
 }

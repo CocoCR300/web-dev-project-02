@@ -1,101 +1,93 @@
-/* Estilo general */
-body {
+html, body {
+  height: 100%;
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #121212, #1e1e1e);
+  color: #fff;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
+  justify-content: center;
 }
 
-/* Contenedor principal */
 .register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-/* Caja del formulario */
-.register-box {
-  background-color: #ffffff;
-  padding: 40px 30px;
-  border-radius: 15px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  padding: 2rem;
+  background-color: #1f1f1f;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Título */
 .register-title {
-  font-size: 28px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
   font-weight: bold;
-  margin-bottom: 25px;
-  color: #333;
-  text-align: center;
+  color: #ffffff;
 }
 
-/* Formulario */
 .register-form .form-group {
-  margin-bottom: 20px;
-}
-
-.register-form label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  color: #444;
-}
-
-.register-form input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  background-color: #2a2a2a;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
   border-radius: 8px;
-  transition: border-color 0.3s;
-  font-size: 14px;
+  transition: background-color 0.2s ease;
 }
 
-.register-form input:focus {
-  border-color: #5b9df9;
+.form-group:focus-within {
+  background-color: #333;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #bbb;
+}
+
+.form-group input {
+  background: transparent;
+  border: none;
   outline: none;
+  color: #fff;
+  font-size: 1rem;
 }
 
-/* Mensajes */
-.error-message {
-  color: #d32f2f;
-  font-size: 14px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.success-message {
-  color: #388e3c;
-  font-size: 14px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-/* Botones */
 .register-button {
   width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  font-size: 15px;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
   border: none;
   border-radius: 8px;
-  background-color: #5b9df9;
-  color: white;
+  background-color: #4f46e5;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease;
 }
 
 .register-button:hover {
-  background-color: #467fd0;
+  background-color: #6366f1;
 }
 
 .register-button:disabled {
-  background-color: #b0c9f8;
+  background-color: #3e3e8c;
   cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.success-message {
+  color: #4ade80;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1rem;
 }
