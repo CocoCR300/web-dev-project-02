@@ -72,72 +72,77 @@ export default function Register() {
 	};
 
 	return (
-		<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-800">
-			<Card className="w-full max-w-md shadow-lg">
-				<CardHeader className="text-center text-xl font-bold text-white">
-					Registro
-				</CardHeader>
-				<CardContent>
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div className="space-y-1">
-							<Label htmlFor="fullName">Nombre completo</Label>
-							<Input
-								id="fullName"
-								type="text"
-								value={fullName}
-								onChange={(e) => setFullName(e.target.value)}
-								className="bg-zinc-800 text-white"
-								required
-							/>
-						</div>
+  <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-800">
+    <Card className="w-full max-w-md shadow-lg">
+      <CardHeader className="text-center text-xl font-bold text-white">
+        Registro
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <Label htmlFor="fullName">Nombre completo</Label>
+            <div className="flex items-center gap-2 bg-zinc-800 rounded-md px-3 py-2">
+              <Input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-white w-full"
+                placeholder="Tu nombre completo"
+                required
+              />
+            </div>
+          </div>
 
-						<div className="space-y-1">
-							<Label htmlFor="username">Nombre de usuario</Label>
-							<Input
-								id="username"
-								type="text"
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-								className="bg-zinc-800 text-white"
-								required
-							/>
-						</div>
+          <div className="space-y-1">
+            <Label htmlFor="username">Nombre de usuario</Label>
+            <div className="flex items-center gap-2 bg-zinc-800 rounded-md px-3 py-2">
+              <Input
+                id="username"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-white w-full"
+                placeholder="Nombre de usuario"
+                required
+              />
+            </div>
+          </div>
 
-						<div className="space-y-1">
-							<Label htmlFor="password">Contraseña</Label>
-							<Input
-								id="password"
-								type="password"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								className="bg-zinc-800 text-white"
-								required
-							/>
-						</div>
+          <div className="space-y-1">
+            <Label htmlFor="password">Contraseña</Label>
+            <div className="flex items-center gap-2 bg-zinc-800 rounded-md px-3 py-2">
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-white w-full"
+                placeholder="Contraseña"
+                required
+              />
+            </div>
+          </div>
 
-						{error && (
-							<p className="text-red-500 text-sm text-center">{error}</p>
-						)}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {success && <p className="text-green-500 text-sm text-center">{success}</p>}
 
-						{success && (
-							<p className="text-green-500 text-sm text-center">{success}</p>
-						)}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Registrando..." : "Registrarse"}
+          </Button>
 
-						<Button type="submit" className="w-full" disabled={loading}>
-							{loading ? "Registrando..." : "Registrarse"}
-						</Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => navigate("/login")}
+          >
+            Iniciar sesión
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  </div>
+);
 
-						<Button
-							type="button"
-							variant="outline"
-							className="w-full"
-							onClick={() => navigate("/login")}
-						>
-							Iniciar sesión
-						</Button>
-					</form>
-				</CardContent>
-			</Card>
-		</div>
-	);
 }
