@@ -48,7 +48,7 @@ export default function Register() {
 		};
 
 		try {
-			const response = await fetch(API_URL, {
+			const response = await fetch(`${API_URL}/graphql`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ query, variables }),

@@ -8,7 +8,7 @@ const CACHE_PATHS = [
 	"images/maskable_icon_x96.png",
 	"images/maskable_icon_x128.png",
 	"images/maskable_icon_x192.png",
-    "assets/index-V2-aEalF.js",
+    "assets/index-Bw7BbzrN.js",
     "assets/index-VBRRgj-L.css",
 ];
 
