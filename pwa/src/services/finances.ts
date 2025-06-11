@@ -5,18 +5,18 @@ import { API_URL } from "../globals";
 
 const ENDPOINT = `${API_URL}/graphql`;
 const DATABASE = new PouchDB("transactions");
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDk1MDYxODA1MjcsImlzcyI6Imh0dHBzOi8vdW5hLmFjLmNyIiwibmFtZSI6ImpvaG5kb2UiLCJzdWIiOjF9.XRL0ZywhaWUCnz1sxPBF1ZnET8gpci5coRIwF439Mfo";
 
 // Delete database, uncomment when needed
 //DATABASE.destroy();
-const items = await transactions("", 0, 1);
-if (items.length == 0) {
-	const date = new Date();
-	date.setFullYear(2000);
+transactions("", 0, 1).then(items => {
+	if (items.length == 0) {
+		const date = new Date();
+		date.setFullYear(2000);
 
-	//saveTransaction({ _id: "", amount: -100, category_id: "", date: new Date(), description: "Went to the mall again!" });
-	//saveTransaction({ _id: "", amount: 1000, category_id: "", date, description: "Another day of hard work" });
-}
+		//saveTransaction({ _id: "", amount: -100, category_id: "", date: new Date(), description: "Went to the mall again!" });
+		//saveTransaction({ _id: "", amount: 1000, category_id: "", date, description: "Another day of hard work" });
+	}
+});
 
 DATABASE.createIndex({
 	index: { fields: [ "date" ] }
@@ -40,10 +40,11 @@ export async function transactions(searchFilter: string, offset: number, limit: 
 		}
 	`;
 	
+	const token = localStorage.getItem("token");
 	
 	try {
 		const response = await fetch(ENDPOINT, {
-			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+			headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "transactions", query })
 		});
@@ -96,9 +97,10 @@ export async function saveTransaction(transaction: Transaction): Promise<Transac
 		variables.input._id = transaction._id;
 	}
 
+	const token = localStorage.getItem("token");
 	try {
 		const response = await fetch(ENDPOINT, {
-			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+			headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "transactions", query: `${query}`, variables })
 		});
@@ -136,16 +138,17 @@ export async function saveTransaction(transaction: Transaction): Promise<Transac
 export async function deleteTransaction(id: number): Promise<boolean>
 {
 	const query = `#graphql
-		query transactions {
+		mutation transactions {
 			deleteTransaction(id: ${id}) {
 				id
 			}
 		}
 	`;
 
+	const token = localStorage.getItem("token");
 	try {
 		const response = await fetch(ENDPOINT, {
-			headers: { "Content-Type": "application/json" },
+			headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "transactions", query })
 		});

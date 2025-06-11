@@ -44,7 +44,15 @@ export default function CategoriesPage() {
 			return;
 		}
 
-		await saveCategory({ _id: null, id: -1, name: categoryName.trim() });
+		try {
+			await saveCategory({ _id: null, id: -1, name: categoryName.trim() });
+		}
+		catch (err) {
+			window.alert("Ha ocurrido un error al agregar la categoría");
+			console.error(err);
+			return;
+		}
+
 		setCategoryName("");
 		loadCategories();
 	}
@@ -64,21 +72,34 @@ export default function CategoriesPage() {
 			);
 			if (!confirmDelete) return;
 
-			for (const tx of related) {
-				if (tx._id) {
-					await deleteTransaction(tx._id);
+			try {
+				for (const tx of related) {
+					if (tx._id) {
+							await deleteTransaction(tx._id);
+					}
 				}
+			}
+			catch (err) {
+				window.alert("Ha ocurrido un error al eliminar la categoría");
+				console.error(err);
+				return;
 			}
 		}
 
-		const success = await deleteCategory(id);
-		if (success) {
-			if (selectedCategory != null && selectedCategory._id === cat._id) {
-				setSelectedCategory(null);
-				setTransactionList([]);
+		try {
+			const success = await deleteCategory(id);
+			if (success) {
+				if (selectedCategory != null && selectedCategory._id === cat._id) {
+					setSelectedCategory(null);
+					setTransactionList([]);
+				}
+				loadCategories();
+				loadTransactions(); 
 			}
-			loadCategories();
-			loadTransactions(); 
+		}
+		catch (err) {
+			window.alert("Ha ocurrido un error al eliminar la categoría");
+			console.error(err);
 		}
 	}
 

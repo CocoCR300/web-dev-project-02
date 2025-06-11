@@ -5,7 +5,6 @@ import { API_URL } from "../globals";
 
 const ENDPOINT = `${API_URL}/graphql`;
 const DATABASE = new PouchDB("categories")
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDk1MDYxODA1MjcsImlzcyI6Imh0dHBzOi8vdW5hLmFjLmNyIiwibmFtZSI6ImpvaG5kb2UiLCJzdWIiOjF9.XRL0ZywhaWUCnz1sxPBF1ZnET8gpci5coRIwF439Mfo";
 
 DATABASE.createIndex({
 	index: { fields: ["name"] }
@@ -22,9 +21,10 @@ export async function categories(): Promise<Category[]>
 		}
 	`;
 
+	const token = localStorage.getItem("token");
 	try {
 		const response = await fetch(ENDPOINT, {
-			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+			headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "categories", query })
 		});
@@ -66,9 +66,10 @@ export async function saveCategory(category: Category): Promise<Category | null>
 		variables.input._id = category._id;
 	}
 
+	const token = localStorage.getItem("token");
 	try {
 		const response = await fetch(ENDPOINT, {
-			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+			headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "categories", query, variables })
 		});
@@ -108,9 +109,10 @@ export async function deleteCategory(id: number): Promise<boolean> {
 		}
 	`;
 
+	const token = localStorage.getItem("token");
 	try {
 		const response = await fetch(ENDPOINT, {
-			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
+			headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "categories", query })
 		});

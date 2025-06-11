@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import TransactionCard from "../components/transaction-card";
 import { type Transaction, type Category, DEFAULT_CATEGORY } from "../typedef";
 import ListView from "../components/list-view";
@@ -30,7 +30,8 @@ const TIME_FORMAT = new Intl.DateTimeFormat(undefined, {
 	timeZone: "UTC"
 });
 
-function TransactionDrawer(data: TransactionDrawerData) {
+function TransactionDrawer(data: TransactionDrawerData)
+{
 	const { index, open, remove, save, setOpen, transaction } = data;
 	const transactionId = transaction?._id || null;
 	const defaultDate = new Date();
@@ -66,11 +67,14 @@ function TransactionDrawer(data: TransactionDrawerData) {
 
 	async function deleteTransaction() {
 		setLoading(true);
-		await new Promise((resolve, _) => setTimeout(resolve, 2000));
+
 		const removed = await remove(index!);
+		setLoading(false);
 		if (removed) {
-			setLoading(false);
 			setOpen(false);
+		}
+		else {
+			window.alert("Ha ocurrido un error al eliminar la transacción");
 		}
 	}
 
@@ -250,7 +254,7 @@ export default function FinancesPage() {
 	}
 
 	async function removeItem(index: number): Promise<boolean> {
-		const id = items[index]._id!;
+		const id = (items[index] as any).id!;
 		const success = await deleteTransaction(id);
 		if (success) {
 			const newItems = [...items];

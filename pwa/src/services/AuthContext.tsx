@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { API_URL } from "../globals";
 
 interface AuthContextType {
@@ -10,7 +10,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) =>
+{
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [loading, setLoading] = useState(true);
 
@@ -23,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			}
 
 			try {
-				const response = await fetch(API_URL, {
+				const response = await fetch(`${API_URL}/graphql`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -39,8 +40,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 					localStorage.removeItem("token");
 					setIsAuthenticated(false);
 				}
-			} catch {
-				setIsAuthenticated(false);
+			}
+			catch (err: any) {
+				if (err.message.startsWith("NetworkError")) {
+					setIsAuthenticated(true);
+				}
+				setLoading(false);
+				console.error(err);
 			} finally {
 				setLoading(false);
 			}
