@@ -1,9 +1,10 @@
 import PouchDB from "pouchdb"
 import { create, get, remove, update } from "../database"
 import type { Category } from "../typedef"
+import { API_URL } from "../globals";
 
+const ENDPOINT = `${API_URL}/graphql`;
 const DATABASE = new PouchDB("categories")
-const API_URL = "http://localhost:4000/graphql";
 const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDk1MDYxODA1MjcsImlzcyI6Imh0dHBzOi8vdW5hLmFjLmNyIiwibmFtZSI6ImpvaG5kb2UiLCJzdWIiOjF9.XRL0ZywhaWUCnz1sxPBF1ZnET8gpci5coRIwF439Mfo";
 
 DATABASE.createIndex({
@@ -22,7 +23,7 @@ export async function categories(): Promise<Category[]>
 	`;
 
 	try {
-		const response = await fetch(API_URL, {
+		const response = await fetch(ENDPOINT, {
 			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "categories", query })
@@ -66,7 +67,7 @@ export async function saveCategory(category: Category): Promise<Category | null>
 	}
 
 	try {
-		const response = await fetch(API_URL, {
+		const response = await fetch(ENDPOINT, {
 			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "categories", query, variables })
@@ -108,7 +109,7 @@ export async function deleteCategory(id: number): Promise<boolean> {
 	`;
 
 	try {
-		const response = await fetch(API_URL, {
+		const response = await fetch(ENDPOINT, {
 			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "categories", query })

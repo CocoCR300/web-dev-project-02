@@ -1,8 +1,9 @@
 import PouchDB from "pouchdb";
 import { create, get, remove, update } from "../database";
 import { DEFAULT_CATEGORY, type Transaction } from "../typedef";
+import { API_URL } from "../globals";
 
-const API_URL = "http://localhost:4000/graphql";
+const ENDPOINT = `${API_URL}/graphql`;
 const DATABASE = new PouchDB("transactions");
 const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDk1MDYxODA1MjcsImlzcyI6Imh0dHBzOi8vdW5hLmFjLmNyIiwibmFtZSI6ImpvaG5kb2UiLCJzdWIiOjF9.XRL0ZywhaWUCnz1sxPBF1ZnET8gpci5coRIwF439Mfo";
 
@@ -41,7 +42,7 @@ export async function transactions(searchFilter: string, offset: number, limit: 
 	
 	
 	try {
-		const response = await fetch(API_URL, {
+		const response = await fetch(ENDPOINT, {
 			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "transactions", query })
@@ -96,7 +97,7 @@ export async function saveTransaction(transaction: Transaction): Promise<Transac
 	}
 
 	try {
-		const response = await fetch(API_URL, {
+		const response = await fetch(ENDPOINT, {
 			headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "transactions", query: `${query}`, variables })
@@ -143,7 +144,7 @@ export async function deleteTransaction(id: number): Promise<boolean>
 	`;
 
 	try {
-		const response = await fetch(API_URL, {
+		const response = await fetch(ENDPOINT, {
 			headers: { "Content-Type": "application/json" },
 			method: "POST",
 			body: JSON.stringify({ operationName: "transactions", query })

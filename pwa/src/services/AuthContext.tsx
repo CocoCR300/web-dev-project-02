@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { API_URL } from "../globals";
 
 interface AuthContextType {
 	isAuthenticated: boolean;
@@ -22,7 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			}
 
 			try {
-				const response = await fetch("http://localhost:4000/graphql", {
+				const response = await fetch(API_URL, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

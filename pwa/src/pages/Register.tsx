@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
+import { API_URL } from "../globals";
 
 export default function Register() {
 	const [fullName, setFullName] = useState("");
@@ -47,7 +48,7 @@ export default function Register() {
 		};
 
 		try {
-			const response = await fetch("http://localhost:4000/graphql", {
+			const response = await fetch(API_URL, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ query, variables }),
