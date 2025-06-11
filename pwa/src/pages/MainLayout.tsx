@@ -1,9 +1,10 @@
-
-import { BanknoteIcon, LineChartIcon, TagIcon } from "lucide-react";
+import { BanknoteIcon, LineChartIcon, LogOutIcon, TagIcon } from "lucide-react";
 import FinancesPage from "./finances";
 import CategoriesPage from "./Categories";
 import HistoryPage from "./History";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Button } from "../components/ui/button";
+import { useAuth } from "../services/AuthContext";
 
 const tabItems = [
 	{ content: <FinancesPage />, key: "finances", title: "Transacciones", icon: <BanknoteIcon /> },
@@ -11,10 +12,17 @@ const tabItems = [
 	{ content: <HistoryPage />, key: "history", title: "Historial", icon: <LineChartIcon /> },
 ];
 
-export default function MainLayout() {
-
+export default function MainLayout()
+{
+	const auth = useAuth();
 	return (
 		<Tabs className="column flex h-full w-full" defaultValue="finances" style={{ flexFlow: "column", padding: "1em" }}>
+			<div className="flex justify-center mb-[1em]">
+				<Button className="ml-auto" onClick={ _ => auth.logout() } variant="outline">
+					<LogOutIcon/>
+					Cerrar sesión
+				</Button>
+			</div>
 			<div className="flex-1 mb-[1em]">
 				{tabItems.map(item => (
 					<TabsContent key={item.key} value={item.key} style={{ height: "100%" }}>
@@ -23,12 +31,14 @@ export default function MainLayout() {
 				))}
 			</div>
 			<TabsList className="flex gap-x-[1em] self-center min-h-[4em]">
-				{tabItems.map(item => (
-					<TabsTrigger key={item.key} className="flex flex-col" value={item.key}>
-						{item.icon}
-						{item.title}
-					</TabsTrigger>
-				))}
+				{
+					tabItems.map(item => (
+						<TabsTrigger key={item.key} className="flex flex-col" value={item.key}>
+							{item.icon}
+							{item.title}
+						</TabsTrigger>
+					))
+				}
 			</TabsList>
 		</Tabs>
 	);
