@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import MainLayout from "./pages/MainLayout"; 
+import MainLayout from "./pages/MainLayout";
 import { ThemeProvider } from "./theme-provider";
-import "./App.css";
 import { AuthProvider, useAuth } from "./services/AuthContext";
 
-function AppRoutes() {
+import "./App.css";
+
+function AppRoutes()
+{
 	const { isAuthenticated, loading } = useAuth();
 
 	if (loading) {
@@ -27,16 +29,17 @@ function AppRoutes() {
 }
 
 
-function App() {
-  return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Router>
-          <AppRoutes />
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
-  );
+function App()
+{
+	return (
+		<ThemeProvider>
+			<AuthProvider>
+				<Router>
+					<AppRoutes />
+				</Router>
+			</AuthProvider>
+		</ThemeProvider>
+	);
 }
 
 export default App;

@@ -57,8 +57,9 @@ function TransactionDrawer(data: TransactionDrawerData) {
 
 		setLoading(true);
 		const saved = await save(index, newTransaction);
+		setLoading(false);
+
 		if (saved) {
-			setLoading(false);
 			setOpen(false);
 		}
 	}
