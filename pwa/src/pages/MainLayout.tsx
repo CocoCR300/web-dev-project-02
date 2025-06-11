@@ -1,10 +1,11 @@
-import { BanknoteIcon, LineChartIcon, LogOutIcon, TagIcon } from "lucide-react";
+import { BanknoteIcon, DownloadIcon, LineChartIcon, LogOutIcon, TagIcon } from "lucide-react";
 import FinancesPage from "./finances";
 import CategoriesPage from "./Categories";
 import HistoryPage from "./History";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Button } from "../components/ui/button";
 import { useAuth } from "../services/AuthContext";
+import { useEffect, useRef, useState } from "react";
 
 const tabItems = [
 	{ content: <FinancesPage />, key: "finances", title: "Transacciones", icon: <BanknoteIcon /> },
@@ -15,10 +16,34 @@ const tabItems = [
 export default function MainLayout()
 {
 	const auth = useAuth();
+	const [installPrompt, setInstallPrompt] = useState<any>(null);
+
+	useEffect(() => {
+			window.addEventListener("beforeinstallprompt", beforeInstallPrompt);
+
+			return () => window.removeEventListener("beforeinstallprompt", beforeInstallPrompt);
+	}, []);
+
+	function beforeInstallPrompt(event: any) {
+		event.preventDefault();
+		setInstallPrompt(event);
+	}
+
+	function install() {
+		if (installPrompt != null) {
+			installPrompt.prompt();
+			setInstallPrompt(null);
+		}
+	}
+
 	return (
 		<Tabs className="column flex h-full w-full" defaultValue="finances" style={{ flexFlow: "column", padding: "1em" }}>
-			<div className="flex justify-center mb-[1em]">
-				<Button className="ml-auto" onClick={ _ => auth.logout() } variant="outline">
+			<div className="flex gap-2 justify-end mb-[1em]">
+				<Button onClick={ _ => install() } variant="outline" hidden={installPrompt == null}>
+					<DownloadIcon/>
+					Instalar
+				</Button>
+				<Button onClick={ _ => auth.logout() } variant="outline">
 					<LogOutIcon/>
 					Cerrar sesión
 				</Button>
